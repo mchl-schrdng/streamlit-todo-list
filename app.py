@@ -24,7 +24,7 @@ st.markdown(
 st.title("📝 Streamlit To-Do List")
 
 # Two-column layout
-col1, col2 = st.columns([1, 2])  # Adjust column width ratio (1:2)
+col1, col2 = st.columns([1.5, 2])  # Adjusted column width ratio for better balance
 
 # Left Column: Add a New Action
 with col1:
@@ -40,7 +40,7 @@ with col1:
         add_task(title, description, urgency, importance)
         st.success("Task added successfully!")
 
-# Right Column: Task DataFrame
+# Right Column: Task DataFrame and Metrics
 with col2:
     st.header("Task List")
     tasks = get_tasks()
@@ -87,7 +87,7 @@ with col2:
     else:
         st.write("No tasks found.")
 
-# Metrics
-st.header("Metrics")
-metrics = calculate_metrics()
-st.write(f"Tasks completed today: {metrics['completed_today']}")
+    # Metrics Section
+    st.header("Metrics")
+    metrics = calculate_metrics()
+    st.write(f"Tasks completed today: {metrics['completed_today']}")
