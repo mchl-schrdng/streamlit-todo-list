@@ -51,7 +51,8 @@ with st.sidebar:
             st.session_state.importance,
         )
         st.success("Task added successfully!")
-        st.experimental_set_query_params(rerun=True)
+        # Reload the page
+        st.experimental_rerun()
 
 # Main Page: Tasks Grouped by Status
 tasks = get_tasks()
@@ -114,12 +115,14 @@ with st.sidebar:
         if update_submitted:
             update_task_status(task_id, new_status)
             st.success(f"Task {task_id} status updated to '{new_status}'.")
-            st.experimental_set_query_params(rerun=True)
+            # Reload the page
+            st.experimental_rerun()
 
         if delete_submitted:
             delete_task(task_id)  # Call the delete function
             st.success(f"Task {task_id} deleted successfully!")
-            st.experimental_set_query_params(rerun=True)
+            # Reload the page
+            st.experimental_rerun()
 
     else:
         st.write("No tasks available to update or delete.")
