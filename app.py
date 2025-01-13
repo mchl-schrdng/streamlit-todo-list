@@ -12,36 +12,27 @@ st.set_page_config(
     layout="wide",  # Enable wide mode
     initial_sidebar_state="expanded"  # Sidebar starts expanded
 )
-st.markdown(
-    """
-    <style>
-    body {
-        background: linear-gradient(to right, #6a11cb, #2575fc);
-        color: white;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-st.title("📝 Streamlit To-Do List")
 
 # Sidebar: Add a New Task
 with st.sidebar:
-    st.header("Add a New Task")
     with st.form("task_form"):
-        title = st.text_input("Task Title", placeholder="Enter your task title")
-        description = st.text_area("Description", placeholder="Task details (optional)")
-        urgency = st.slider("Urgency", 1, 5, 3)
-        importance = st.slider("Importance", 1, 5, 3)
+        st.text_input("Task Title", placeholder="Enter your task title", key="title")
+        st.text_area("Description", placeholder="Task details (optional)", key="description")
+        st.slider("Urgency", 1, 5, 3, key="urgency")
+        st.slider("Importance", 1, 5, 3, key="importance")
         submitted = st.form_submit_button("Add Task")
 
-    if submitted and title:
-        add_task(title, description, urgency, importance)
+    if submitted and st.session_state.title:
+        add_task(
+            st.session_state.title,
+            st.session_state.description,
+            st.session_state.urgency,
+            st.session_state.importance,
+        )
         st.success("Task added successfully!")
+        st.experimental_rerun()
 
 # Main Page: Task List and Metrics
-st.header("Task List")
 tasks = get_tasks()
 if tasks:
     # Convert tasks to DataFrame
@@ -64,7 +55,6 @@ if tasks:
     st.dataframe(df_tasks, use_container_width=True)
 
     # Status Update Section
-    st.subheader("Update Task Status")
     task_id = st.selectbox(
         "Select Task ID to Update",
         df_tasks["Task ID"].values,
@@ -76,10 +66,10 @@ if tasks:
         update_task_status(task_id, new_status)
         st.success(f"Task {task_id} status updated to '{new_status}'.")
         st.query_params = {"rerun": "true"}
+
 else:
     st.write("No tasks found.")
 
 # Metrics Section
-st.header("Metrics")
 metrics = calculate_metrics()
-st.write(f"Tasks completed today: {metrics['completed_today']}")
+st.text(f"Tasks completed today: {metrics['completed_today']}")
