@@ -35,19 +35,21 @@ with st.sidebar:
     # Update Task Status
     tasks = get_tasks()
     if tasks:
-        df_tasks = pd.DataFrame(tasks)
-        df_tasks.rename(columns={"id": "Task ID", "title": "Title"}, inplace=True)
-        task_id = st.selectbox(
-            "",
-            df_tasks["Task ID"].values,
-            format_func=lambda x: f"Task {x}: {df_tasks[df_tasks['Task ID'] == x]['Title'].values[0]}",
-        )
-        new_status = st.radio("", options=["created", "done"], horizontal=True)
+        with st.form("update_task_form"):
+            df_tasks = pd.DataFrame(tasks)
+            df_tasks.rename(columns={"id": "Task ID", "title": "Title"}, inplace=True)
+            task_id = st.selectbox(
+                "",  # Empty label for the selectbox
+                df_tasks["Task ID"].values,
+                format_func=lambda x: f"Task {x}: {df_tasks[df_tasks['Task ID'] == x]['Title'].values[0]}",
+            )
+            new_status = st.radio("New Status", options=["created", "done"], horizontal=True)
+            update_submitted = st.form_submit_button("Update Status")
 
-        if st.button("Update Status"):
+        if update_submitted:
             update_task_status(task_id, new_status)
             st.success(f"Task {task_id} status updated to '{new_status}'.")
-            st.query_params = {"rerun": "true"}
+            st.experimental_rerun()
     else:
         st.write("No tasks available to update.")
 
