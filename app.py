@@ -30,7 +30,8 @@ with st.sidebar:
             st.session_state.importance,
         )
         st.success("Task added successfully!")
-        st.experimental_rerun()
+        # Simulate a page reload
+        st.query_params = {"rerun": "true"}
 
     # Update Task Status
     tasks = get_tasks()
@@ -49,7 +50,8 @@ with st.sidebar:
         if update_submitted:
             update_task_status(task_id, new_status)
             st.success(f"Task {task_id} status updated to '{new_status}'.")
-            st.experimental_rerun()
+            # Simulate a page reload
+            st.query_params = {"rerun": "true"}
     else:
         st.write("No tasks available to update.")
 
