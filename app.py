@@ -9,7 +9,7 @@ initialize_db()
 st.set_page_config(
     page_title="todooolist",
     layout="wide",  # Enable wide mode
-    initial_sidebar_state="collapsed", 
+    initial_sidebar_state="collapsed",
     page_icon ='🤖'  # Sidebar starts expanded
 )
 
@@ -68,51 +68,51 @@ with st.sidebar:
     else:
         st.write("No tasks available to update.")
 
-    # Main Page: Two Columns for Tasks
-    tasks = get_tasks()
-    if tasks:
-        # Convert tasks to a DataFrame
-        df_tasks = pd.DataFrame(tasks)
-        df_tasks["Urgency"] = df_tasks["urgent"].map({True: "High", False: "Low"})
-        df_tasks["Importance"] = df_tasks["important"].map({True: "High", False: "Low"})
-        df_tasks.rename(
-            columns={
-                "id": "Task ID",
-                "title": "Title",
-                "description": "Description",
-                "status": "Status",
-                "created_at": "Created At",
-            },
-            inplace=True,
-        )
+# Main Page: Two Columns for Tasks
+tasks = get_tasks()
+if tasks:
+    # Convert tasks to a DataFrame
+    df_tasks = pd.DataFrame(tasks)
+    df_tasks["Urgency"] = df_tasks["urgent"].map({True: "High", False: "Low"})
+    df_tasks["Importance"] = df_tasks["important"].map({True: "High", False: "Low"})
+    df_tasks.rename(
+        columns={
+            "id": "Task ID",
+            "title": "Title",
+            "description": "Description",
+            "status": "Status",
+            "created_at": "Created At",
+        },
+        inplace=True,
+    )
 
-        # Filter tasks into ongoing and completed
-        ongoing_tasks = df_tasks[df_tasks["Status"] == "created"]
-        completed_tasks = df_tasks[df_tasks["Status"] == "done"]
+    # Filter tasks into ongoing and completed
+    ongoing_tasks = df_tasks[df_tasks["Status"] == "created"]
+    completed_tasks = df_tasks[df_tasks["Status"] == "done"]
 
-        # Create two columns
-        col1, col2 = st.columns(2)
+    # Create two columns
+    col1, col2 = st.columns(2)
 
-        # Display Ongoing Tasks in Column 1
-        with col1:
-            st.subheader("Ongoing Tasks")
-            if not ongoing_tasks.empty:
-                st.dataframe(
-                    ongoing_tasks[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At"]],
-                    use_container_width=True,
-                )
-            else:
-                st.write("No ongoing tasks.")
+    # Display Ongoing Tasks in Column 1
+    with col1:
+        st.subheader("Ongoing Tasks")
+        if not ongoing_tasks.empty:
+            st.dataframe(
+                ongoing_tasks[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At"]],
+                use_container_width=True,
+            )
+        else:
+            st.write("No ongoing tasks.")
 
-        # Display Completed Tasks in Column 2
-        with col2:
-            st.subheader("Completed Tasks")
-            if not completed_tasks.empty:
-                st.dataframe(
-                    completed_tasks[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At"]],
-                    use_container_width=True,
-                )
-            else:
-                st.write("No completed tasks.")
-    else:
-        st.write("No tasks found.")
+    # Display Completed Tasks in Column 2
+    with col2:
+        st.subheader("Completed Tasks")
+        if not completed_tasks.empty:
+            st.dataframe(
+                completed_tasks[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At"]],
+                use_container_width=True,
+            )
+        else:
+            st.write("No completed tasks.")
+else:
+    st.write("No tasks found.")
