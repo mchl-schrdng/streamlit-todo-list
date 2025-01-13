@@ -43,7 +43,7 @@ with st.sidebar:
                 df_tasks["Task ID"].values,
                 format_func=lambda x: f"Task {x}: {df_tasks[df_tasks['Task ID'] == x]['Title'].values[0]}",
             )
-            new_status = st.radio("", options=["created", "done"], horizontal=True)
+            new_status = st.radio("New Status", options=["created", "done"], horizontal=True)
             update_submitted = st.form_submit_button("Update Status")
 
         if update_submitted:
