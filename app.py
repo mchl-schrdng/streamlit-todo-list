@@ -75,7 +75,7 @@ with col2:
         if st.button("Update Status"):
             update_task_status(task_id, new_status)
             st.success(f"Task {task_id} status updated to '{new_status}'.")
-            st.experimental_rerun()
+            st.experimental_set_query_params(rerun="true")
     else:
         st.write("No tasks found.")
 
