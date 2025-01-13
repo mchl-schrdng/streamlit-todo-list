@@ -72,7 +72,7 @@ with col2:
             gridOptions=grid_options,
             update_mode="MODEL_CHANGED",
             editable=True,
-            height=400,
+            height=800,
             fit_columns_on_grid_load=True,
         )
 
