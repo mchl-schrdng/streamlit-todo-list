@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from utils.database import initialize_db, add_task, get_tasks, update_task_status, delete_task
+from utils.database import initialize_db, add_task, get_tasks, update_task_status, update_task_details, reset_database
 
 # Initialize the database
 initialize_db()
@@ -33,30 +33,33 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Initialize session state for refresh
-if "refresh" not in st.session_state:
-    st.session_state.refresh = False
+# Add Reset Database Option in Sidebar
+if st.sidebar.button("Reset Database"):
+    reset_database()  # Call the reset function
+    st.success("Database has been reset!")
+    st.experimental_rerun()
+
+# Task Manager
+st.title("📋 Task Manager")
 
 # Sidebar: Add a New Task
-with st.sidebar:
-    st.subheader("Add a New Task")
-    with st.form("task_form"):
-        st.text_input("", placeholder="Enter your task title", key="title")
-        st.text_area("", placeholder="Task details (optional)", key="description")
-        st.slider("Urgency", 1, 5, 3, key="urgency")
-        st.slider("Importance", 1, 5, 3, key="importance")
-        submitted = st.form_submit_button("Add Task")
+st.sidebar.subheader("Add a New Task")
+with st.sidebar.form("task_form"):
+    st.text_input("", placeholder="Enter your task title", key="title")
+    st.text_area("", placeholder="Task details (optional)", key="description")
+    st.slider("Urgency", 1, 5, 3, key="urgency")
+    st.slider("Importance", 1, 5, 3, key="importance")
+    submitted = st.form_submit_button("Add Task")
 
-    if submitted and st.session_state.title:
-        add_task(
-            st.session_state.title,
-            st.session_state.description,
-            st.session_state.urgency,
-            st.session_state.importance,
-        )
-        st.success("Task added successfully!")
-        # Trigger refresh
-        st.session_state.refresh = not st.session_state.refresh
+if submitted and st.session_state.title:
+    add_task(
+        st.session_state.title,
+        st.session_state.description,
+        st.session_state.urgency,
+        st.session_state.importance,
+    )
+    st.success("Task added successfully!")
+    st.experimental_rerun()
 
 # Main Page: Tasks Grouped by Status
 tasks = get_tasks()
@@ -72,6 +75,7 @@ if tasks:
             "description": "Description",
             "status": "Status",
             "created_at": "Created At",
+            "updated_at": "Updated At",
         },
         inplace=True,
     )
@@ -89,50 +93,52 @@ if tasks:
         st.subheader(status)
         if not data.empty:
             st.dataframe(
-                data[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At"]],
+                data[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At", "Updated At"]],
                 use_container_width=True,
             )
         else:
-            st.write(f"No {status.lower()}.")
+            st.write(f"No {status.lower()} tasks.")
 
 else:
     st.write("No tasks found.")
 
-# Sidebar: Update Task Status or Delete Task
-with st.sidebar:
-    st.subheader("Update or Delete Task")
-    if tasks:
-        with st.form("update_task_form"):
-            task_id = st.selectbox(
-                "Select Task ID",
-                df_tasks["Task ID"].values,
-                format_func=lambda x: f"Task {x}: {df_tasks[df_tasks['Task ID'] == x]['Title'].values[0]}",
-            )
-            new_status = st.radio(
-                "New Status",
-                options=["pending", "in progress", "done"],  # Restricted statuses
-                horizontal=True,
-            )
-            update_submitted = st.form_submit_button("Update Status")
-            delete_submitted = st.form_submit_button("Delete Task")  # Add delete task button
+# Sidebar: Update Existing Task
+st.sidebar.subheader("Update Existing Task")
+if tasks:
+    with st.sidebar.form("update_task_form"):
+        # Dropdown to select the task to update
+        task_id = st.selectbox(
+            "Select Task ID to Update",
+            df_tasks["Task ID"].values,
+            format_func=lambda x: f"Task {x}: {df_tasks[df_tasks['Task ID'] == x]['Title'].values[0]}",
+        )
+
+        # Fetch current values for the selected task
+        selected_task = df_tasks[df_tasks["Task ID"] == task_id].iloc[0]
+
+        # Editable fields
+        title = st.text_input("Title", value=selected_task["Title"])
+        description = st.text_area("Description", value=selected_task["Description"])
+        urgency = st.slider("Urgency", 1, 5, int(selected_task["Urgency"]))
+        importance = st.slider("Importance", 1, 5, int(selected_task["Importance"]))
+        status = st.radio(
+            "Status",
+            options=["created", "pending", "in progress", "done"],
+            index=["created", "pending", "in progress", "done"].index(selected_task["Status"]),
+            horizontal=True,
+        )
+
+        # Submit button
+        update_submitted = st.form_submit_button("Update Task")
 
         if update_submitted:
-            update_task_status(task_id, new_status)
-            st.success(f"Task {task_id} status updated to '{new_status}'.")
-            # Trigger refresh
-            st.session_state.refresh = not st.session_state.refresh
+            # Update the task in the database
+            update_task_status(task_id, status)  # Update the status
+            update_task_details(
+                task_id, title, description, urgency, importance
+            )  # Update other details
+            st.success(f"Task {task_id} updated successfully!")
+            st.experimental_rerun()
 
-        if delete_submitted:
-            delete_task(task_id)  # Call the delete function
-            st.success(f"Task {task_id} deleted successfully!")
-            # Trigger refresh
-            st.session_state.refresh = not st.session_state.refresh
-
-    # Add Reset Database Option in Sidebar
-    if st.sidebar.button("Reset Database"):
-        reset_database()  # Call the reset function
-        st.success("Database has been reset!")
-        st.experimental_rerun()
-
-    else:
-        st.write("No tasks available to update or delete.")
+else:
+    st.sidebar.write("No tasks available to update.")
