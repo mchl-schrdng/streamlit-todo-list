@@ -122,8 +122,8 @@ if tasks:
         importance = st.slider("Importance", 1, 5, int(selected_task["importance"]))
         status = st.radio(
             "Status",
-            options=["pending", "in progress", "done"],
-            index=["pending", "in progress", "done"].index(selected_task["Status"]),
+            options=["created", "pending", "in progress", "done"],
+            index=["created", "pending", "in progress", "done"].index(selected_task["Status"]),
             horizontal=True,
         )
 
