@@ -93,7 +93,7 @@ with st.sidebar:
     if tasks:
         with st.form("update_task_form"):
             task_id = st.selectbox(
-                "Select Task ID to Update",
+                "Select task ID to update",
                 df_tasks["Task ID"].values,
                 format_func=lambda x: f"Task {x}: {df_tasks[df_tasks['Task ID'] == x]['Title'].values[0]}",
             )
