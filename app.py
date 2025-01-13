@@ -7,7 +7,11 @@ from utils.metrics import calculate_metrics
 initialize_db()
 
 # App layout
-st.set_page_config(page_title="Streamlit To-Do List", layout="centered")
+st.set_page_config(
+    page_title="Streamlit To-Do List",
+    layout="wide",  # Enable wide mode
+    initial_sidebar_state="expanded"  # Sidebar starts expanded
+)
 st.markdown(
     """
     <style>
@@ -22,11 +26,8 @@ st.markdown(
 
 st.title("📝 Streamlit To-Do List")
 
-# Two-column layout
-col1, col2 = st.columns([1.5, 2])  # Adjust column width ratio for better balance
-
-# Left Column: Add a New Action
-with col1:
+# Sidebar: Add a New Task
+with st.sidebar:
     st.header("Add a New Task")
     with st.form("task_form"):
         title = st.text_input("Task Title", placeholder="Enter your task title")
@@ -39,46 +40,44 @@ with col1:
         add_task(title, description, urgency, importance)
         st.success("Task added successfully!")
 
-# Right Column: Task List with Elegant Status Update
-with col2:
-    st.header("Task List")
-    tasks = get_tasks()
-    if tasks:
-        # Convert tasks to DataFrame
-        df_tasks = pd.DataFrame(tasks)
-        df_tasks["Urgency"] = df_tasks["urgent"].map({True: "High", False: "Low"})
-        df_tasks["Importance"] = df_tasks["important"].map({True: "High", False: "Low"})
-        df_tasks = df_tasks[["id", "title", "description", "Urgency", "Importance", "status", "created_at"]]
-        df_tasks.rename(
-            columns={
-                "id": "Task ID",
-                "title": "Title",
-                "description": "Description",
-                "status": "Status",
-                "created_at": "Created At",
-            },
-            inplace=True,
-        )
+# Main Page: Task List and Metrics
+st.header("Task List")
+tasks = get_tasks()
+if tasks:
+    # Convert tasks to DataFrame
+    df_tasks = pd.DataFrame(tasks)
+    df_tasks["Urgency"] = df_tasks["urgent"].map({True: "High", False: "Low"})
+    df_tasks["Importance"] = df_tasks["important"].map({True: "High", False: "Low"})
+    df_tasks = df_tasks[["id", "title", "description", "Urgency", "Importance", "status", "created_at"]]
+    df_tasks.rename(
+        columns={
+            "id": "Task ID",
+            "title": "Title",
+            "description": "Description",
+            "status": "Status",
+            "created_at": "Created At",
+        },
+        inplace=True,
+    )
 
-        # Display the tasks in a DataFrame
-        st.dataframe(df_tasks, use_container_width=True)
+    # Display the tasks in a DataFrame
+    st.dataframe(df_tasks, use_container_width=True)
 
-        # Status Update Section
-        st.subheader("Update Task Status")
-        task_id = st.selectbox(
-            "Select Task ID to Update",
-            df_tasks["Task ID"].values,
-            format_func=lambda x: f"Task {x}: {df_tasks[df_tasks['Task ID'] == x]['Title'].values[0]}",
-        )
-        new_status = st.radio("New Status", options=["created", "done"], horizontal=True)
+    # Status Update Section
+    st.subheader("Update Task Status")
+    task_id = st.selectbox(
+        "Select Task ID to Update",
+        df_tasks["Task ID"].values,
+        format_func=lambda x: f"Task {x}: {df_tasks[df_tasks['Task ID'] == x]['Title'].values[0]}",
+    )
+    new_status = st.radio("New Status", options=["created", "done"], horizontal=True)
 
-        if st.button("Update Status"):
-            update_task_status(task_id, new_status)
-            st.success(f"Task {task_id} status updated to '{new_status}'.")
-            # Simulate a rerun by setting a query parameter
-            st.query_params = {"rerun": "true"}
-    else:
-        st.write("No tasks found.")
+    if st.button("Update Status"):
+        update_task_status(task_id, new_status)
+        st.success(f"Task {task_id} status updated to '{new_status}'.")
+        st.query_params = {"rerun": "true"}
+else:
+    st.write("No tasks found.")
 
 # Metrics Section
 st.header("Metrics")
