@@ -65,20 +65,20 @@ if tasks:
     )
 
     # Filter tasks based on their status
-    pending_tasks = df_tasks[df_tasks["Status"] == "pending"]
+    created_tasks = df_tasks[df_tasks["Status"] == "created"]
     in_progress_tasks = df_tasks[df_tasks["Status"] == "in progress"]
-    ongoing_tasks = df_tasks[df_tasks["Status"] == "created"]
-    completed_tasks = df_tasks[df_tasks["Status"] == "done"]
+    pending_tasks = df_tasks[df_tasks["Status"] == "pending"]
+    done_tasks = df_tasks[df_tasks["Status"] == "done"]
 
     # Display tasks grouped by status in one column
-    st.subheader("Pending Tasks")
-    if not pending_tasks.empty:
+    st.subheader("Created Tasks")
+    if not created_tasks.empty:
         st.dataframe(
-            pending_tasks[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At"]],
+            created_tasks[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At"]],
             use_container_width=True,
         )
     else:
-        st.write("No pending tasks.")
+        st.write("No created tasks.")
 
     st.subheader("In Progress Tasks")
     if not in_progress_tasks.empty:
@@ -89,19 +89,19 @@ if tasks:
     else:
         st.write("No tasks in progress.")
 
-    st.subheader("Ongoing Tasks")
-    if not ongoing_tasks.empty:
+    st.subheader("Pending Tasks")
+    if not pending_tasks.empty:
         st.dataframe(
-            ongoing_tasks[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At"]],
+            pending_tasks[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At"]],
             use_container_width=True,
         )
     else:
-        st.write("No ongoing tasks.")
+        st.write("No pending tasks.")
 
-    st.subheader("Completed Tasks")
-    if not completed_tasks.empty:
+    st.subheader("Done Tasks")
+    if not done_tasks.empty:
         st.dataframe(
-            completed_tasks[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At"]],
+            done_tasks[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At"]],
             use_container_width=True,
         )
     else:
@@ -121,7 +121,7 @@ with st.sidebar:
             )
             new_status = st.radio(
                 "New Status",
-                options=["pending", "in progress", "created", "done"],  # New statuses added
+                options=["pending", "in progress", "done"],  # Restricted to allowed statuses
                 horizontal=True,
             )
             update_submitted = st.form_submit_button("Update Status")
@@ -129,6 +129,7 @@ with st.sidebar:
         if update_submitted:
             update_task_status(task_id, new_status)
             st.success(f"Task {task_id} status updated to '{new_status}'.")
-            st.experimental_rerun()  # Reload the page to reflect changes
+            # Refresh the page
+            st.session_state["rerun"] = not st.session_state.get("rerun", False)
     else:
         st.write("No tasks available to update.")
