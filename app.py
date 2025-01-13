@@ -98,7 +98,7 @@ if tasks:
         )
     else:
         st.write("No ongoing tasks.")
-
+    st.divider()
     # Display Completed Tasks
     st.subheader("Completed Tasks")
     if not completed_tasks.empty:
