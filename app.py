@@ -68,7 +68,7 @@ with st.sidebar:
     else:
         st.write("No tasks available to update.")
 
-# Main Page: Two DataFrames for Tasks
+# Main Page: Two Columns for Tasks with Delete Feature
 tasks = get_tasks()
 if tasks:
     # Convert tasks to a DataFrame
@@ -90,24 +90,39 @@ if tasks:
     ongoing_tasks = df_tasks[df_tasks["Status"] == "created"]
     completed_tasks = df_tasks[df_tasks["Status"] == "done"]
 
-    # Display Ongoing Tasks
-    st.subheader("Ongoing Tasks")
-    if not ongoing_tasks.empty:
-        st.dataframe(
-            ongoing_tasks[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At"]],
-            use_container_width=True,
-        )
-    else:
-        st.write("No ongoing tasks.")
-    st.subheader('', divider='rainbow')
-    # Display Completed Tasks
-    st.subheader("Completed Tasks")
-    if not completed_tasks.empty:
-        st.dataframe(
-            completed_tasks[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At"]],
-            use_container_width=True,
-        )
-    else:
-        st.write("No completed tasks.")
+    # Create two columns
+    col1, col2 = st.columns(2)
+
+    # Display Ongoing Tasks in Column 1
+    with col1:
+        st.subheader("Ongoing Tasks")
+        if not ongoing_tasks.empty:
+            for index, row in ongoing_tasks.iterrows():
+                st.write(f"**{row['Title']}** - {row['Description']}")
+                st.write(f"Urgency: {row['Urgency']} | Importance: {row['Importance']}")
+
+                # Add a delete button for each task
+                if st.button(f"Delete Task {row['Task ID']}", key=f"delete_ongoing_{row['Task ID']}"):
+                    delete_task(row['Task ID'])  # Call the delete function
+                    st.success(f"Task {row['Task ID']} deleted successfully!")
+                    st.experimental_rerun()  # Reload the page after deletion
+        else:
+            st.write("No ongoing tasks.")
+
+    # Display Completed Tasks in Column 2
+    with col2:
+        st.subheader("Completed Tasks")
+        if not completed_tasks.empty:
+            for index, row in completed_tasks.iterrows():
+                st.write(f"**{row['Title']}** - {row['Description']}")
+                st.write(f"Urgency: {row['Urgency']} | Importance: {row['Importance']}")
+
+                # Add a delete button for each task
+                if st.button(f"Delete Task {row['Task ID']}", key=f"delete_completed_{row['Task ID']}"):
+                    delete_task(row['Task ID'])  # Call the delete function
+                    st.success(f"Task {row['Task ID']} deleted successfully!")
+                    st.experimental_rerun()  # Reload the page after deletion
+        else:
+            st.write("No completed tasks.")
 else:
     st.write("No tasks found.")

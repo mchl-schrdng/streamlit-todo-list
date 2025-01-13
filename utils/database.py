@@ -62,3 +62,11 @@ def update_task_status(task_id, status):
     """, (status, task_id))
     conn.commit()
     conn.close()
+
+def delete_task(task_id):
+    """Delete a task from the database by its ID."""
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM tasks WHERE id = ?", (task_id,))
+    conn.commit()
+    conn.close()
