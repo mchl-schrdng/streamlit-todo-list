@@ -1,132 +1,93 @@
-import streamlit as st
-import pandas as pd
-from utils.database import initialize_db, add_task, get_tasks, update_task_status, update_task_details
+import sqlite3
+from datetime import datetime
+
+DB_NAME = "database.db"
 
 # Initialize the database
-initialize_db()
-
-# App layout and style
-st.set_page_config(
-    page_title="Todooolist",
-    layout="wide",
-    initial_sidebar_state="collapsed",
-    page_icon="🤖"
-)
-
-# Apply global styling
-st.markdown(
-    """
-    <style>
-    /* Background gradient for the main app */
-    [data-testid="stAppViewContainer"] {
-        background: linear-gradient(to right, #6a11cb, #2575fc);
-        color: white;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-# Task Manager
-st.title("📋 Task Manager")
-
-# Sidebar: Add a New Task
-st.sidebar.subheader("Add a New Task")
-with st.sidebar.form("task_form"):
-    st.text_input("", placeholder="Enter your task title", key="title")
-    st.text_area("", placeholder="Task details (optional)", key="description")
-    st.slider("Urgency", 1, 5, 3, key="urgency")
-    st.slider("Importance", 1, 5, 3, key="importance")
-    submitted = st.form_submit_button("Add Task")
-
-if submitted and st.session_state.title:
-    add_task(
-        st.session_state.title,
-        st.session_state.description,
-        st.session_state.urgency,
-        st.session_state.importance,
-    )
-    st.success("Task added successfully!")
-    st.experimental_rerun()
-
-# Main Page: Tasks Grouped by Status
-tasks = get_tasks()
-if tasks:
-    # Convert tasks to a DataFrame
-    df_tasks = pd.DataFrame(tasks)
-    df_tasks["Urgency"] = df_tasks["urgent"].map({True: "High", False: "Low"})
-    df_tasks["Importance"] = df_tasks["important"].map({True: "High", False: "Low"})
-    df_tasks.rename(
-        columns={
-            "id": "Task ID",
-            "title": "Title",
-            "description": "Description",
-            "status": "Status",
-            "created_at": "Created At",
-            "updated_at": "Updated At",
-        },
-        inplace=True,
-    )
-
-    # Task categories
-    task_status_mapping = {
-        "Created Tasks": df_tasks[df_tasks["Status"] == "created"],
-        "In Progress Tasks": df_tasks[df_tasks["Status"] == "in progress"],
-        "Pending Tasks": df_tasks[df_tasks["Status"] == "pending"],
-        "Done Tasks": df_tasks[df_tasks["Status"] == "done"],
-    }
-
-    # Display tasks by category
-    for status, data in task_status_mapping.items():
-        st.subheader(status)
-        if not data.empty:
-            st.dataframe(
-                data[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At", "Updated At"]],
-                use_container_width=True,
-            )
-        else:
-            st.write(f"No {status.lower()} tasks.")
-
-else:
-    st.write("No tasks found.")
-
-# Sidebar: Update Existing Task
-st.sidebar.subheader("Update Existing Task")
-if tasks:
-    with st.sidebar.form("update_task_form"):
-        # Dropdown to select the task to update
-        task_id = st.selectbox(
-            "Select Task ID to Update",
-            df_tasks["Task ID"].values,
-            format_func=lambda x: f"Task {x}: {df_tasks[df_tasks['Task ID'] == x]['Title'].values[0]}",
+def initialize_db():
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS tasks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            description TEXT,
+            urgency INTEGER,
+            importance INTEGER,
+            status TEXT DEFAULT 'created',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
+    """)
+    conn.commit()
+    conn.close()
 
-        # Fetch current values for the selected task
-        selected_task = df_tasks[df_tasks["Task ID"] == task_id].iloc[0]
+# Add a new task to the database
+def add_task(title, description, urgency, importance):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO tasks (title, description, urgency, importance)
+        VALUES (?, ?, ?, ?)
+    """, (title, description, urgency, importance))
+    conn.commit()
+    conn.close()
 
-        # Editable fields
-        title = st.text_input("Title", value=selected_task["Title"])
-        description = st.text_area("Description", value=selected_task["Description"])
-        urgency = st.slider("Urgency", 1, 5, int(selected_task["Urgency"]))
-        importance = st.slider("Importance", 1, 5, int(selected_task["Importance"]))
-        status = st.radio(
-            "Status",
-            options=["created", "pending", "in progress", "done"],
-            index=["created", "pending", "in progress", "done"].index(selected_task["Status"]),
-            horizontal=True,
-        )
+# Get all tasks from the database
+def get_tasks():
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT id, title, description, urgency, importance, status, created_at, updated_at
+        FROM tasks
+    """)
+    tasks = cursor.fetchall()
+    conn.close()
+    return [
+        {
+            "id": row[0],
+            "title": row[1],
+            "description": row[2],
+            "urgency": row[3],
+            "importance": row[4],
+            "status": row[5],
+            "created_at": row[6],
+            "updated_at": row[7],
+        }
+        for row in tasks
+    ]
 
-        # Submit button
-        update_submitted = st.form_submit_button("Update Task")
+# Update a task's status
+def update_task_status(task_id, status):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE tasks
+        SET status = ?, updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+    """, (status, task_id))
+    conn.commit()
+    conn.close()
 
-        if update_submitted:
-            # Update the task in the database
-            update_task_status(task_id, status)  # Update the status
-            update_task_details(
-                task_id, title, description, urgency, importance
-            )  # Update other details
-            st.success(f"Task {task_id} updated successfully!")
-            st.experimental_rerun()
+# Update task details
+def update_task_details(task_id, title, description, urgency, importance):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE tasks
+        SET title = ?, description = ?, urgency = ?, importance = ?, updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+    """, (title, description, urgency, importance, task_id))
+    conn.commit()
+    conn.close()
 
-else:
-    st.sidebar.write("No tasks available to update.")
+# Delete a task from the database
+def delete_task(task_id):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute("""
+        DELETE FROM tasks
+        WHERE id = ?
+    """, (task_id,))
+    conn.commit()
+    conn.close()
