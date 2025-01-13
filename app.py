@@ -38,7 +38,7 @@ with st.sidebar:
         df_tasks = pd.DataFrame(tasks)
         df_tasks.rename(columns={"id": "Task ID", "title": "Title"}, inplace=True)
         task_id = st.selectbox(
-            "Select Task ID to Update",
+            "",
             df_tasks["Task ID"].values,
             format_func=lambda x: f"Task {x}: {df_tasks[df_tasks['Task ID'] == x]['Title'].values[0]}",
         )
