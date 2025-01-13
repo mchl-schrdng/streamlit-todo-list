@@ -33,15 +33,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Add Reset Database Option in Sidebar
-if st.sidebar.button("Reset Database"):
-    reset_database()  # Call the reset function
-    st.success("Database has been reset!")
-    st.session_state.refresh = not st.session_state.get("refresh", False)  # Trigger refresh
-
-# Task Manager
-st.title("📋 Task Manager")
-
 # Sidebar: Add a New Task
 st.sidebar.subheader("Add a New Task")
 with st.sidebar.form("task_form"):
@@ -153,3 +144,10 @@ if tasks:
 
 else:
     st.sidebar.write("No tasks available to update or delete.")
+
+# Move Reset Database Option to the End of Sidebar
+st.sidebar.markdown("---")
+if st.sidebar.button("Reset Database (End)"):
+    reset_database()
+    st.success("Database has been reset!")
+    st.session_state.refresh = not st.session_state.get("refresh", False)
