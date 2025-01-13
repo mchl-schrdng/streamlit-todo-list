@@ -35,7 +35,6 @@ with st.sidebar:
     # Update Task Status
     tasks = get_tasks()
     if tasks:
-        st.subheader("Update Task Status")
         df_tasks = pd.DataFrame(tasks)
         df_tasks.rename(columns={"id": "Task ID", "title": "Title"}, inplace=True)
         task_id = st.selectbox(
