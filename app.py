@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from utils.database import initialize_db, add_task, get_tasks, update_task_status
+from utils.database import initialize_db, add_task, get_tasks, update_task_status, delete_task  # Add delete_task function
 
 # Initialize the database
 initialize_db()
@@ -22,6 +22,12 @@ st.markdown(
         background: linear-gradient(to right, #6a11cb, #2575fc);
         color: white;
     }
+    /* Transparency and styling for dataframes */
+    [data-testid="stDataFrameContainer"] {
+        background: rgba(0, 0, 0, 0.5); /* Black with 50% transparency */
+        border-radius: 8px;
+        padding: 10px;
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -29,7 +35,7 @@ st.markdown(
 
 # Sidebar: Add a New Task
 with st.sidebar:
-    st.subheader("Add a new Task")
+    st.subheader("Add a New Task")
     with st.form("task_form"):
         st.text_input("", placeholder="Enter your task title", key="title")
         st.text_area("", placeholder="Task details (optional)", key="description")
@@ -67,10 +73,10 @@ if tasks:
 
     # Task categories
     task_status_mapping = {
-        "Backlog": df_tasks[df_tasks["Status"] == "created"],
-        "In progress": df_tasks[df_tasks["Status"] == "in progress"],
-        "Pending": df_tasks[df_tasks["Status"] == "pending"],
-        "Done": df_tasks[df_tasks["Status"] == "done"],
+        "Created Tasks": df_tasks[df_tasks["Status"] == "created"],
+        "In Progress Tasks": df_tasks[df_tasks["Status"] == "in progress"],
+        "Pending Tasks": df_tasks[df_tasks["Status"] == "pending"],
+        "Done Tasks": df_tasks[df_tasks["Status"] == "done"],
     }
 
     # Display tasks by category
@@ -87,26 +93,33 @@ if tasks:
 else:
     st.write("No tasks found.")
 
-# Sidebar: Update Task Status
+# Sidebar: Update Task Status or Delete Task
 with st.sidebar:
-    st.subheader("Update task status")
+    st.subheader("Update or Delete Task")
     if tasks:
         with st.form("update_task_form"):
             task_id = st.selectbox(
-                "Select task ID to update",
+                "Select Task ID",
                 df_tasks["Task ID"].values,
                 format_func=lambda x: f"Task {x}: {df_tasks[df_tasks['Task ID'] == x]['Title'].values[0]}",
             )
             new_status = st.radio(
-                "New status",
+                "New Status",
                 options=["pending", "in progress", "done"],  # Restricted statuses
                 horizontal=True,
             )
             update_submitted = st.form_submit_button("Update Status")
+            delete_submitted = st.form_submit_button("Delete Task")  # Add delete task button
 
         if update_submitted:
             update_task_status(task_id, new_status)
             st.success(f"Task {task_id} status updated to '{new_status}'.")
             st.experimental_set_query_params(rerun=True)
+
+        if delete_submitted:
+            delete_task(task_id)  # Call the delete function
+            st.success(f"Task {task_id} deleted successfully!")
+            st.experimental_set_query_params(rerun=True)
+
     else:
-        st.write("No tasks available to update.")
+        st.write("No tasks available to update or delete.")
