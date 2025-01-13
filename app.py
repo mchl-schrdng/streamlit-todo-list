@@ -1,5 +1,4 @@
 import streamlit as st
-import sqlite3
 from utils.database import initialize_db, add_task, get_tasks, update_task_status
 from utils.metrics import calculate_metrics
 
@@ -14,6 +13,16 @@ st.markdown(
     body {
         background: linear-gradient(to right, #6a11cb, #2575fc);
         color: white;
+    }
+    .quadrant-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    .quadrant {
+        background-color: rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        border-radius: 8px;
     }
     </style>
     """,
@@ -38,21 +47,37 @@ if submitted and title:
 # Quadrant Display
 st.header("Task Quadrants")
 tasks = get_tasks()
-for quadrant, label in [
-    ((True, True), "Urgent & Important"),
-    ((True, False), "Urgent & Not Important"),
-    ((False, True), "Not Urgent & Important"),
-    ((False, False), "Not Urgent & Not Important"),
-]:
-    filtered = [
-        task
-        for task in tasks
-        if task["urgent"] == quadrant[0] and task["important"] == quadrant[1]
-    ]
-    if filtered:
-        st.subheader(label)
-        for task in filtered:
-            st.markdown(f"- **{task['title']}**: {task['description']}")
+quadrants = {
+    (True, True): "Urgent & Important",
+    (True, False): "Urgent & Not Important",
+    (False, True): "Not Urgent & Important",
+    (False, False): "Not Urgent & Not Important",
+}
+
+st.markdown('<div class="quadrant-container">', unsafe_allow_html=True)
+for quadrant, label in quadrants.items():
+    st.markdown(f'<div class="quadrant">', unsafe_allow_html=True)
+    st.subheader(label)
+    for task in tasks:
+        if task["urgent"] == quadrant[0] and task["important"] == quadrant[1]:
+            st.write(f"- **{task['title']}**: {task['description']}")
+            if task["status"] == "created":
+                if st.button(f"Mark as Done: {task['title']}", key=task["id"]):
+                    update_task_status(task["id"], "done")
+                    st.experimental_rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
+
+# Task List with Filter
+st.header("Task List")
+selected_date = st.date_input("Filter by Creation Date")
+filtered_tasks = [
+    task
+    for task in tasks
+    if selected_date.strftime("%Y-%m-%d") in task["created_at"]
+]
+for task in filtered_tasks:
+    st.write(f"- **{task['title']}**: {task['description']} (Status: {task['status']})")
 
 # Metrics
 st.header("Metrics")
