@@ -5,29 +5,37 @@ from utils.database import initialize_db, add_task, get_tasks, update_task_statu
 # Initialize the database
 initialize_db()
 
-# App layout
+# App layout and style
 st.set_page_config(
-    page_title="todooolist",
-    layout="wide",  # Enable wide mode
+    page_title="Todooolist",
+    layout="wide",
     initial_sidebar_state="collapsed",
-    page_icon ='🤖'  # Sidebar starts expanded
+    page_icon="🤖"
 )
 
+# Apply global styling
 st.markdown(
     """
     <style>
+    /* Background gradient for the main app */
     [data-testid="stAppViewContainer"] {
         background: linear-gradient(to right, #6a11cb, #2575fc);
         color: white;
+    }
+    /* Transparency and styling for dataframes */
+    [data-testid="stDataFrameContainer"] {
+        background: rgba(0, 0, 0, 0.5); /* Black with 50% transparency */
+        border-radius: 8px;
+        padding: 10px;
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-# Sidebar: Add a New Task and Update Task Status
+# Sidebar: Add a New Task
 with st.sidebar:
-    # Add a New Task
+    st.subheader("Add a New Task")
     with st.form("task_form"):
         st.text_input("", placeholder="Enter your task title", key="title")
         st.text_area("", placeholder="Task details (optional)", key="description")
@@ -43,23 +51,9 @@ with st.sidebar:
             st.session_state.importance,
         )
         st.success("Task added successfully!")
-        # Simulate a page reload
-        st.query_params = {"rerun": "true"}
+        st.experimental_set_query_params(rerun=True)
 
-st.markdown(
-    """
-    <style>
-    [data-testid="stDataFrameContainer"] {
-        background: rgba(0, 0, 0, 0.5); /* Black with 50% transparency */
-        border-radius: 8px;
-        padding: 10px;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-# Main Page: Tasks Grouped by Status in One Column
+# Main Page: Tasks Grouped by Status
 tasks = get_tasks()
 if tasks:
     # Convert tasks to a DataFrame
@@ -77,48 +71,25 @@ if tasks:
         inplace=True,
     )
 
-    # Filter tasks based on their status
-    created_tasks = df_tasks[df_tasks["Status"] == "created"]
-    in_progress_tasks = df_tasks[df_tasks["Status"] == "in progress"]
-    pending_tasks = df_tasks[df_tasks["Status"] == "pending"]
-    done_tasks = df_tasks[df_tasks["Status"] == "done"]
+    # Task categories
+    task_status_mapping = {
+        "Created Tasks": df_tasks[df_tasks["Status"] == "created"],
+        "In Progress Tasks": df_tasks[df_tasks["Status"] == "in progress"],
+        "Pending Tasks": df_tasks[df_tasks["Status"] == "pending"],
+        "Done Tasks": df_tasks[df_tasks["Status"] == "done"],
+    }
 
-    # Display tasks grouped by status in one column
-    st.subheader("Created Tasks")
-    if not created_tasks.empty:
-        st.dataframe(
-            created_tasks[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At"]],
-            use_container_width=True,
-        )
-    else:
-        st.write("No created tasks.")
+    # Display tasks by category
+    for status, data in task_status_mapping.items():
+        st.subheader(status)
+        if not data.empty:
+            st.dataframe(
+                data[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At"]],
+                use_container_width=True,
+            )
+        else:
+            st.write(f"No {status.lower()}.")
 
-    st.subheader("In Progress Tasks")
-    if not in_progress_tasks.empty:
-        st.dataframe(
-            in_progress_tasks[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At"]],
-            use_container_width=True,
-        )
-    else:
-        st.write("No tasks in progress.")
-
-    st.subheader("Pending Tasks")
-    if not pending_tasks.empty:
-        st.dataframe(
-            pending_tasks[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At"]],
-            use_container_width=True,
-        )
-    else:
-        st.write("No pending tasks.")
-
-    st.subheader("Done Tasks")
-    if not done_tasks.empty:
-        st.dataframe(
-            done_tasks[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At"]],
-            use_container_width=True,
-        )
-    else:
-        st.write("No completed tasks.")
 else:
     st.write("No tasks found.")
 
@@ -134,7 +105,7 @@ with st.sidebar:
             )
             new_status = st.radio(
                 "New Status",
-                options=["pending", "in progress", "done"],  # Restricted to allowed statuses
+                options=["pending", "in progress", "done"],  # Restricted statuses
                 horizontal=True,
             )
             update_submitted = st.form_submit_button("Update Status")
@@ -142,7 +113,6 @@ with st.sidebar:
         if update_submitted:
             update_task_status(task_id, new_status)
             st.success(f"Task {task_id} status updated to '{new_status}'.")
-            # Refresh the page
-            st.session_state["rerun"] = not st.session_state.get("rerun", False)
+            st.experimental_set_query_params(rerun=True)
     else:
         st.write("No tasks available to update.")
