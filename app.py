@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from utils.database import initialize_db, add_task, get_tasks, update_task_status, update_task_details, reset_database
+from utils.database import initialize_db, add_task, get_tasks, update_task_status, update_task_details, delete_task, reset_database
 
 # Initialize the database
 initialize_db()
@@ -66,8 +66,8 @@ tasks = get_tasks()
 if tasks:
     # Convert tasks to a DataFrame
     df_tasks = pd.DataFrame(tasks)
-    df_tasks["Urgency"] = df_tasks["urgent"].map({True: "High", False: "Low"})
-    df_tasks["Importance"] = df_tasks["important"].map({True: "High", False: "Low"})
+    df_tasks["Urgency"] = df_tasks["urgency"].apply(lambda x: "High" if x >= 4 else "Low")
+    df_tasks["Importance"] = df_tasks["importance"].apply(lambda x: "High" if x >= 4 else "Low")
     df_tasks.rename(
         columns={
             "id": "Task ID",
@@ -140,5 +140,16 @@ if tasks:
             st.success(f"Task {task_id} updated successfully!")
             st.session_state.refresh = not st.session_state.get("refresh", False)  # Trigger refresh
 
+    st.sidebar.subheader("Delete a Task")
+    task_id_to_delete = st.sidebar.selectbox(
+        "Select Task ID to Delete",
+        df_tasks["Task ID"].values,
+        format_func=lambda x: f"Task {x}: {df_tasks[df_tasks['Task ID'] == x]['Title'].values[0]}",
+    )
+    if st.sidebar.button("Delete Task"):
+        delete_task(task_id_to_delete)
+        st.success(f"Task {task_id_to_delete} deleted successfully!")
+        st.session_state.refresh = not st.session_state.get("refresh", False)  # Trigger refresh
+
 else:
-    st.sidebar.write("No tasks available to update.")
+    st.sidebar.write("No tasks available to update or delete.")
