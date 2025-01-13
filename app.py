@@ -25,20 +25,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Add transparency to DataFrame via CSS
-st.markdown(
-    """
-    <style>
-    [data-testid="stDataFrameContainer"] {
-        background: rgba(0, 0, 0, 0.5); /* Black with 50% transparency */
-        border-radius: 8px;
-        padding: 10px;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
 # Sidebar: Add a New Task and Update Task Status
 with st.sidebar:
     # Add a New Task
@@ -59,6 +45,19 @@ with st.sidebar:
         st.success("Task added successfully!")
         # Simulate a page reload
         st.query_params = {"rerun": "true"}
+
+st.markdown(
+    """
+    <style>
+    [data-testid="stDataFrameContainer"] {
+        background: rgba(0, 0, 0, 0.5); /* Black with 50% transparency */
+        border-radius: 8px;
+        padding: 10px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 # Main Page: Tasks Grouped by Status in One Column
 tasks = get_tasks()
