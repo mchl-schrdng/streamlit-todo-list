@@ -128,6 +128,7 @@ if tasks:
             st.session_state.refresh = not st.session_state.get("refresh", False)  # Trigger refresh
 
     # Sidebar: Delete Task
+    st.sidebar.markdown("---")
     st.sidebar.subheader("Delete a Task")
     task_id_to_delete = st.sidebar.selectbox(
         "Select Task ID to Delete",
