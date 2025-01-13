@@ -23,65 +23,69 @@ st.markdown(
 
 st.title("📝 Streamlit To-Do List")
 
-# Input Form
-st.header("Add a New Task")
-with st.form("task_form"):
-    title = st.text_input("Task Title", placeholder="Enter your task title")
-    description = st.text_area("Description", placeholder="Task details (optional)")
-    urgency = st.slider("Urgency", 1, 5, 3)
-    importance = st.slider("Importance", 1, 5, 3)
-    submitted = st.form_submit_button("Add Task")
+# Two-column layout
+col1, col2 = st.columns([1, 2])  # Adjust column width ratio (1:2)
 
-if submitted and title:
-    add_task(title, description, urgency, importance)
-    st.success("Task added successfully!")
+# Left Column: Add a New Action
+with col1:
+    st.header("Add a New Task")
+    with st.form("task_form"):
+        title = st.text_input("Task Title", placeholder="Enter your task title")
+        description = st.text_area("Description", placeholder="Task details (optional)")
+        urgency = st.slider("Urgency", 1, 5, 3)
+        importance = st.slider("Importance", 1, 5, 3)
+        submitted = st.form_submit_button("Add Task")
 
-# Display Tasks in Editable DataFrame
-st.header("Task List")
-tasks = get_tasks()
-if tasks:
-    df_tasks = pd.DataFrame(tasks)
-    df_tasks["Urgency"] = df_tasks["urgent"].map({True: "High", False: "Low"})
-    df_tasks["Importance"] = df_tasks["important"].map({True: "High", False: "Low"})
-    df_tasks = df_tasks[["id", "title", "description", "Urgency", "Importance", "status", "created_at"]]
-    df_tasks.rename(
-        columns={
-            "id": "Task ID",
-            "title": "Title",
-            "description": "Description",
-            "status": "Status",
-            "created_at": "Created At",
-        },
-        inplace=True,
-    )
+    if submitted and title:
+        add_task(title, description, urgency, importance)
+        st.success("Task added successfully!")
 
-    # Configure AgGrid for interactive editing
-    gb = GridOptionsBuilder.from_dataframe(df_tasks)
-    gb.configure_default_column(editable=True)
-    gb.configure_column("Status", editable=True, cellEditor="agSelectCellEditor", cellEditorParams={"values": ["created", "done"]})
-    grid_options = gb.build()
+# Right Column: Task DataFrame
+with col2:
+    st.header("Task List")
+    tasks = get_tasks()
+    if tasks:
+        df_tasks = pd.DataFrame(tasks)
+        df_tasks["Urgency"] = df_tasks["urgent"].map({True: "High", False: "Low"})
+        df_tasks["Importance"] = df_tasks["important"].map({True: "High", False: "Low"})
+        df_tasks = df_tasks[["id", "title", "description", "Urgency", "Importance", "status", "created_at"]]
+        df_tasks.rename(
+            columns={
+                "id": "Task ID",
+                "title": "Title",
+                "description": "Description",
+                "status": "Status",
+                "created_at": "Created At",
+            },
+            inplace=True,
+        )
 
-    # Display editable DataFrame
-    grid_response = AgGrid(
-        df_tasks,
-        gridOptions=grid_options,
-        update_mode="MODEL_CHANGED",
-        editable=True,
-        height=400,
-        fit_columns_on_grid_load=True,
-    )
+        # Configure AgGrid for interactive editing
+        gb = GridOptionsBuilder.from_dataframe(df_tasks)
+        gb.configure_default_column(editable=True)
+        gb.configure_column("Status", editable=True, cellEditor="agSelectCellEditor", cellEditorParams={"values": ["created", "done"]})
+        grid_options = gb.build()
 
-    # Check for changes in the DataFrame
-    updated_df = grid_response["data"]
+        # Display editable DataFrame
+        grid_response = AgGrid(
+            df_tasks,
+            gridOptions=grid_options,
+            update_mode="MODEL_CHANGED",
+            editable=True,
+            height=400,
+            fit_columns_on_grid_load=True,
+        )
 
-    # Apply changes to the database
-    for _, row in updated_df.iterrows():
-        if row["Status"] != df_tasks.loc[row.name, "Status"]:  # Check if the status has changed
-            update_task_status(row["Task ID"], row["Status"])
-            st.success(f"Task '{row['Title']}' updated to '{row['Status']}'!")
+        # Check for changes in the DataFrame
+        updated_df = grid_response["data"]
 
-else:
-    st.write("No tasks found.")
+        # Apply changes to the database
+        for _, row in updated_df.iterrows():
+            if row["Status"] != df_tasks.loc[row.name, "Status"]:  # Check if the status has changed
+                update_task_status(row["Task ID"], row["Status"])
+                st.success(f"Task '{row['Title']}' updated to '{row['Status']}'!")
+    else:
+        st.write("No tasks found.")
 
 # Metrics
 st.header("Metrics")
