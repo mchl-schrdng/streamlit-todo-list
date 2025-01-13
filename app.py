@@ -46,29 +46,7 @@ with st.sidebar:
         # Simulate a page reload
         st.query_params = {"rerun": "true"}
 
-    # Update Task Status
-    tasks = get_tasks()
-    if tasks:
-        with st.form("update_task_form"):
-            df_tasks = pd.DataFrame(tasks)
-            df_tasks.rename(columns={"id": "Task ID", "title": "Title"}, inplace=True)
-            task_id = st.selectbox(
-                "",  # Empty label for the selectbox
-                df_tasks["Task ID"].values,
-                format_func=lambda x: f"Task {x}: {df_tasks[df_tasks['Task ID'] == x]['Title'].values[0]}",
-            )
-            new_status = st.radio("New Status", options=["created", "done"], horizontal=True)
-            update_submitted = st.form_submit_button("Update Status")
-
-        if update_submitted:
-            update_task_status(task_id, new_status)
-            st.success(f"Task {task_id} status updated to '{new_status}'.")
-            # Simulate a page reload
-            st.query_params = {"rerun": "true"}
-    else:
-        st.write("No tasks available to update.")
-
-# Main Page: Two Columns for Tasks with Delete Feature
+    # Main Page: Two DataFrames for Tasks
 tasks = get_tasks()
 if tasks:
     # Convert tasks to a DataFrame
@@ -86,43 +64,71 @@ if tasks:
         inplace=True,
     )
 
-    # Filter tasks into ongoing and completed
-    ongoing_tasks = df_tasks[df_tasks["Status"] == "created"]
-    completed_tasks = df_tasks[df_tasks["Status"] == "done"]
+    # Filter tasks into categories based on status
+    created_tasks = df_tasks[df_tasks["Status"] == "created"]
+    pending_tasks = df_tasks[df_tasks["Status"] == "pending"]
+    in_progress_tasks = df_tasks[df_tasks["Status"] == "in progress"]
+    done_tasks = df_tasks[df_tasks["Status"] == "done"]
 
-    # Create two columns
+    # Create four columns for task categories
     col1, col2 = st.columns(2)
 
-    # Display Ongoing Tasks in Column 1
+    # Display Created and Pending Tasks in Column 1
     with col1:
-        st.subheader("Ongoing Tasks")
-        if not ongoing_tasks.empty:
-            for index, row in ongoing_tasks.iterrows():
-                st.write(f"**{row['Title']}** - {row['Description']}")
-                st.write(f"Urgency: {row['Urgency']} | Importance: {row['Importance']}")
-
-                # Add a delete button for each task
-                if st.button(f"Delete Task {row['Task ID']}", key=f"delete_ongoing_{row['Task ID']}"):
-                    delete_task(row['Task ID'])  # Call the delete function
-                    st.success(f"Task {row['Task ID']} deleted successfully!")
-                    st.experimental_rerun()  # Reload the page after deletion
+        st.subheader("Created Tasks")
+        if not created_tasks.empty:
+            st.dataframe(
+                created_tasks[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At"]],
+                use_container_width=True,
+            )
         else:
-            st.write("No ongoing tasks.")
+            st.write("No created tasks.")
 
-    # Display Completed Tasks in Column 2
+        st.subheader("Pending Tasks")
+        if not pending_tasks.empty:
+            st.dataframe(
+                pending_tasks[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At"]],
+                use_container_width=True,
+            )
+        else:
+            st.write("No pending tasks.")
+
+    # Display In Progress and Done Tasks in Column 2
     with col2:
-        st.subheader("Completed Tasks")
-        if not completed_tasks.empty:
-            for index, row in completed_tasks.iterrows():
-                st.write(f"**{row['Title']}** - {row['Description']}")
-                st.write(f"Urgency: {row['Urgency']} | Importance: {row['Importance']}")
-
-                # Add a delete button for each task
-                if st.button(f"Delete Task {row['Task ID']}", key=f"delete_completed_{row['Task ID']}"):
-                    delete_task(row['Task ID'])  # Call the delete function
-                    st.success(f"Task {row['Task ID']} deleted successfully!")
-                    st.experimental_rerun()  # Reload the page after deletion
+        st.subheader("In Progress Tasks")
+        if not in_progress_tasks.empty:
+            st.dataframe(
+                in_progress_tasks[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At"]],
+                use_container_width=True,
+            )
         else:
-            st.write("No completed tasks.")
+            st.write("No in-progress tasks.")
+
+        st.subheader("Done Tasks")
+        if not done_tasks.empty:
+            st.dataframe(
+                done_tasks[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At"]],
+                use_container_width=True,
+            )
+        else:
+            st.write("No done tasks.")
 else:
     st.write("No tasks found.")
+
+# Sidebar: Update Task Status
+tasks = get_tasks()
+if tasks:
+    with st.sidebar:
+        st.subheader("Update Task Status")
+        df_tasks = pd.DataFrame(tasks)
+        df_tasks.rename(columns={"id": "Task ID", "title": "Title"}, inplace=True)
+        task_id = st.selectbox(
+            "Select Task to Update",
+            df_tasks["Task ID"].values,
+            format_func=lambda x: f"Task {x}: {df_tasks[df_tasks['Task ID'] == x]['Title'].values[0]}",
+        )
+        new_status = st.radio("New Status", options=["created", "pending", "in progress", "done"], horizontal=True)
+        if st.button("Update Status"):
+            update_task_status(task_id, new_status)
+            st.success(f"Task {task_id} status updated to '{new_status}'.")
+            st.experimental_rerun()
