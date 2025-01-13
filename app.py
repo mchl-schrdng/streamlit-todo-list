@@ -7,10 +7,9 @@ initialize_db()
 
 # App layout
 st.set_page_config(
-    page_title="Streamlit To-Do List",
+    page_title="todooolist",
     layout="wide",  # Enable wide mode
-    initial_sidebar_state="collapsed",
-    page_title='todooolist', 
+    initial_sidebar_state="collapsed", 
     page_icon ='🤖'  # Sidebar starts expanded
 )
 
