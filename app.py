@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from utils.database import initialize_db, add_task, get_tasks, update_task_status, delete_task  # Add delete_task function
+from utils.database import initialize_db, add_task, get_tasks, update_task_status, delete_task
 
 # Initialize the database
 initialize_db()
@@ -33,6 +33,10 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# Initialize session state for refresh
+if "refresh" not in st.session_state:
+    st.session_state.refresh = False
+
 # Sidebar: Add a New Task
 with st.sidebar:
     st.subheader("Add a New Task")
@@ -51,8 +55,8 @@ with st.sidebar:
             st.session_state.importance,
         )
         st.success("Task added successfully!")
-        # Reload the page
-        st.experimental_rerun()
+        # Trigger refresh
+        st.session_state.refresh = not st.session_state.refresh
 
 # Main Page: Tasks Grouped by Status
 tasks = get_tasks()
@@ -115,14 +119,14 @@ with st.sidebar:
         if update_submitted:
             update_task_status(task_id, new_status)
             st.success(f"Task {task_id} status updated to '{new_status}'.")
-            # Reload the page
-            st.experimental_rerun()
+            # Trigger refresh
+            st.session_state.refresh = not st.session_state.refresh
 
         if delete_submitted:
             delete_task(task_id)  # Call the delete function
             st.success(f"Task {task_id} deleted successfully!")
-            # Reload the page
-            st.experimental_rerun()
+            # Trigger refresh
+            st.session_state.refresh = not st.session_state.refresh
 
     else:
         st.write("No tasks available to update or delete.")
