@@ -16,7 +16,7 @@ st.set_page_config(
 with st.sidebar:
     # Add a New Task
     with st.form("task_form"):
-        st.text_input(placeholder="Enter your task title", key="title")
+        st.text_input("", placeholder="Enter your task title", key="title")
         st.text_area("Description", placeholder="Task details (optional)", key="description")
         st.slider("Urgency", 1, 5, 3, key="urgency")
         st.slider("Importance", 1, 5, 3, key="importance")
