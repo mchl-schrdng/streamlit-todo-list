@@ -12,6 +12,18 @@ st.set_page_config(
     initial_sidebar_state="expanded"  # Sidebar starts expanded
 )
 
+st.markdown(
+    """
+    <style>
+    [data-testid="stAppViewContainer"] {
+        background: linear-gradient(to right, #6a11cb, #2575fc);
+        color: white;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 # Sidebar: Add a New Task and Update Task Status
 with st.sidebar:
     # Add a New Task
