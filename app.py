@@ -22,18 +22,13 @@ st.markdown(
         background: linear-gradient(to right, #6a11cb, #2575fc);
         color: white;
     }
-    /* Transparency and styling for dataframes */
-    [data-testid="stDataFrameContainer"] {
-        background: rgba(0, 0, 0, 0.5); /* Black with 50% transparency */
-        border-radius: 8px;
-        padding: 10px;
-    }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
 # Sidebar: Add a New Task
+st.sidebar.markdown("---")
 st.sidebar.subheader("Add a New Task")
 with st.sidebar.form("task_form"):
     st.text_input("Task Title", placeholder="Enter your task title", key="title", label_visibility="collapsed")
@@ -94,6 +89,7 @@ else:
     st.write("No tasks found.")
 
 # Sidebar: Update Existing Task
+st.sidebar.markdown("---")
 st.sidebar.subheader("Update Existing Task")
 if tasks:
     with st.sidebar.form("update_task_form"):
