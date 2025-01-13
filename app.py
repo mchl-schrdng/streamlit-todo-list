@@ -28,7 +28,6 @@ st.markdown(
 )
 
 # Sidebar: Add a New Task
-st.sidebar.markdown("---")
 st.sidebar.subheader("Add a New Task")
 with st.sidebar.form("task_form"):
     st.text_input("Task Title", placeholder="Enter your task title", key="title", label_visibility="collapsed")
