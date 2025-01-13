@@ -5,13 +5,13 @@ from utils.database import initialize_db, add_task, get_tasks, update_task_statu
 # Initialize the database
 initialize_db()
 
-st.set_page_config(page_title='todooolist', page_icon ='🤖')
-
 # App layout
 st.set_page_config(
     page_title="Streamlit To-Do List",
     layout="wide",  # Enable wide mode
-    initial_sidebar_state="collapsed"  # Sidebar starts expanded
+    initial_sidebar_state="collapsed",
+    page_title='todooolist', 
+    page_icon ='🤖'  # Sidebar starts expanded
 )
 
 st.markdown(
