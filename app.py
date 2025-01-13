@@ -5,6 +5,8 @@ from utils.database import initialize_db, add_task, get_tasks, update_task_statu
 # Initialize the database
 initialize_db()
 
+st.set_page_config(page_title='todooolist', page_icon ='🤖')
+
 # App layout
 st.set_page_config(
     page_title="Streamlit To-Do List",
@@ -98,7 +100,7 @@ if tasks:
         )
     else:
         st.write("No ongoing tasks.")
-    st.divider(rainbow)
+    st.subheader('', divider='rainbow')
     # Display Completed Tasks
     st.subheader("Completed Tasks")
     if not completed_tasks.empty:
