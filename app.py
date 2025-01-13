@@ -9,7 +9,6 @@ initialize_db()
 st.set_page_config(
     page_title="Streamlit To-Do List",
     layout="wide",  # Enable wide mode
-    initial_sidebar_state="expanded"  # Sidebar starts expanded
 )
 
 st.markdown(
