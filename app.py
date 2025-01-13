@@ -39,11 +39,12 @@ with col1:
         add_task(title, description, urgency, importance)
         st.success("Task added successfully!")
 
-# Right Column: Task List
+# Right Column: Task List with Elegant Status Update
 with col2:
     st.header("Task List")
     tasks = get_tasks()
     if tasks:
+        # Convert tasks to DataFrame
         df_tasks = pd.DataFrame(tasks)
         df_tasks["Urgency"] = df_tasks["urgent"].map({True: "High", False: "Low"})
         df_tasks["Importance"] = df_tasks["important"].map({True: "High", False: "Low"})
@@ -59,26 +60,22 @@ with col2:
             inplace=True,
         )
 
-        # Display tasks in a table with interactive buttons for status change
-        for idx, row in df_tasks.iterrows():
-            st.write(f"**Task ID:** {row['Task ID']}")
-            st.write(f"**Title:** {row['Title']}")
-            st.write(f"**Description:** {row['Description']}")
-            st.write(f"**Urgency:** {row['Urgency']} | **Importance:** {row['Importance']}")
-            st.write(f"**Created At:** {row['Created At']}")
-            current_status = row["Status"]
-            new_status = st.selectbox(
-                f"Change Status for Task {row['Task ID']}",
-                options=["created", "done"],
-                index=0 if current_status == "created" else 1,
-                key=f"status_{row['Task ID']}",
-            )
-            if new_status != current_status:
-                if st.button(f"Update Task {row['Task ID']}"):
-                    update_task_status(row["Task ID"], new_status)
-                    st.success(f"Task '{row['Title']}' updated to '{new_status}'!")
-                    st.experimental_rerun()
-            st.divider()
+        # Display the tasks in a DataFrame
+        st.dataframe(df_tasks, use_container_width=True)
+
+        # Status Update Section
+        st.subheader("Update Task Status")
+        task_id = st.selectbox(
+            "Select Task ID to Update",
+            df_tasks["Task ID"].values,
+            format_func=lambda x: f"Task {x}: {df_tasks[df_tasks['Task ID'] == x]['Title'].values[0]}",
+        )
+        new_status = st.radio("New Status", options=["created", "done"], horizontal=True)
+
+        if st.button("Update Status"):
+            update_task_status(task_id, new_status)
+            st.success(f"Task {task_id} status updated to '{new_status}'.")
+            st.experimental_rerun()
     else:
         st.write("No tasks found.")
 
