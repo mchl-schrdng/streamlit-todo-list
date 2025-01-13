@@ -37,7 +37,7 @@ st.markdown(
 if st.sidebar.button("Reset Database"):
     reset_database()  # Call the reset function
     st.success("Database has been reset!")
-    st.experimental_rerun()
+    st.session_state.refresh = not st.session_state.get("refresh", False)  # Trigger refresh
 
 # Task Manager
 st.title("📋 Task Manager")
@@ -59,7 +59,7 @@ if submitted and st.session_state.title:
         st.session_state.importance,
     )
     st.success("Task added successfully!")
-    st.experimental_rerun()
+    st.session_state.refresh = not st.session_state.get("refresh", False)  # Trigger refresh
 
 # Main Page: Tasks Grouped by Status
 tasks = get_tasks()
@@ -138,7 +138,7 @@ if tasks:
                 task_id, title, description, urgency, importance
             )  # Update other details
             st.success(f"Task {task_id} updated successfully!")
-            st.experimental_rerun()
+            st.session_state.refresh = not st.session_state.get("refresh", False)  # Trigger refresh
 
 else:
     st.sidebar.write("No tasks available to update.")
