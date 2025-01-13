@@ -80,10 +80,10 @@ if tasks:
 
     # Task categories
     task_status_mapping = {
-        "Created Tasks": df_tasks[df_tasks["Status"] == "created"],
-        "In Progress Tasks": df_tasks[df_tasks["Status"] == "in progress"],
-        "Pending Tasks": df_tasks[df_tasks["Status"] == "pending"],
-        "Done Tasks": df_tasks[df_tasks["Status"] == "done"],
+        "Backlog": df_tasks[df_tasks["Status"] == "created"],
+        "In progress": df_tasks[df_tasks["Status"] == "in progress"],
+        "Pending": df_tasks[df_tasks["Status"] == "pending"],
+        "Done": df_tasks[df_tasks["Status"] == "done"],
     }
 
     # Display tasks by category
