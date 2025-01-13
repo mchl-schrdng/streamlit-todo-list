@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+from st_aggrid import AgGrid, GridOptionsBuilder
 from utils.database import initialize_db, add_task, get_tasks, update_task_status
 from utils.metrics import calculate_metrics
 
@@ -35,18 +36,17 @@ if submitted and title:
     add_task(title, description, urgency, importance)
     st.success("Task added successfully!")
 
-# Display Tasks in DataFrame
+# Display Tasks in Editable DataFrame
 st.header("Task List")
 tasks = get_tasks()
-df_tasks = pd.DataFrame(tasks)
-
-# Show DataFrame with Editable Status
-if not df_tasks.empty:
+if tasks:
+    df_tasks = pd.DataFrame(tasks)
     df_tasks["Urgency"] = df_tasks["urgent"].map({True: "High", False: "Low"})
     df_tasks["Importance"] = df_tasks["important"].map({True: "High", False: "Low"})
-    df_tasks = df_tasks[["title", "description", "Urgency", "Importance", "status", "created_at"]]
+    df_tasks = df_tasks[["id", "title", "description", "Urgency", "Importance", "status", "created_at"]]
     df_tasks.rename(
         columns={
+            "id": "Task ID",
             "title": "Title",
             "description": "Description",
             "status": "Status",
@@ -54,16 +54,32 @@ if not df_tasks.empty:
         },
         inplace=True,
     )
-    st.dataframe(df_tasks)
 
-    # Mark as Done Feature
-    st.subheader("Mark a Task as Done")
-    task_to_mark = st.selectbox("Select a Task", df_tasks[df_tasks["Status"] == "created"]["Title"])
-    if st.button("Mark as Done"):
-        task_id = df_tasks[df_tasks["Title"] == task_to_mark].index[0] + 1
-        update_task_status(task_id, "done")
-        st.success(f"Task '{task_to_mark}' marked as done!")
-        st.experimental_rerun()
+    # Configure AgGrid for interactive editing
+    gb = GridOptionsBuilder.from_dataframe(df_tasks)
+    gb.configure_default_column(editable=True)
+    gb.configure_column("Status", editable=True, cellEditor="agSelectCellEditor", cellEditorParams={"values": ["created", "done"]})
+    grid_options = gb.build()
+
+    # Display editable DataFrame
+    grid_response = AgGrid(
+        df_tasks,
+        gridOptions=grid_options,
+        update_mode="MODEL_CHANGED",
+        editable=True,
+        height=400,
+        fit_columns_on_grid_load=True,
+    )
+
+    # Check for changes in the DataFrame
+    updated_df = grid_response["data"]
+
+    # Apply changes to the database
+    for _, row in updated_df.iterrows():
+        if row["Status"] != df_tasks.loc[row.name, "Status"]:  # Check if the status has changed
+            update_task_status(row["Task ID"], row["Status"])
+            st.success(f"Task '{row['Title']}' updated to '{row['Status']}'!")
+
 else:
     st.write("No tasks found.")
 
