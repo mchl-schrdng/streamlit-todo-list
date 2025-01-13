@@ -22,12 +22,6 @@ st.markdown(
         background: linear-gradient(to right, #6a11cb, #2575fc);
         color: white;
     }
-    /* Transparency and styling for dataframes */
-    [data-testid="stDataFrameContainer"] {
-        background: rgba(0, 0, 0, 0.5); /* Black with 50% transparency */
-        border-radius: 8px;
-        padding: 10px;
-    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -35,7 +29,7 @@ st.markdown(
 
 # Sidebar: Add a New Task
 with st.sidebar:
-    st.subheader("Add a New Task")
+    st.subheader("Add a new Task")
     with st.form("task_form"):
         st.text_input("", placeholder="Enter your task title", key="title")
         st.text_area("", placeholder="Task details (optional)", key="description")
@@ -73,10 +67,10 @@ if tasks:
 
     # Task categories
     task_status_mapping = {
-        "Created Tasks": df_tasks[df_tasks["Status"] == "created"],
-        "In Progress Tasks": df_tasks[df_tasks["Status"] == "in progress"],
-        "Pending Tasks": df_tasks[df_tasks["Status"] == "pending"],
-        "Done Tasks": df_tasks[df_tasks["Status"] == "done"],
+        "Backlog": df_tasks[df_tasks["Status"] == "created"],
+        "In Progress": df_tasks[df_tasks["Status"] == "in progress"],
+        "Pending": df_tasks[df_tasks["Status"] == "pending"],
+        "Done": df_tasks[df_tasks["Status"] == "done"],
     }
 
     # Display tasks by category
@@ -95,7 +89,7 @@ else:
 
 # Sidebar: Update Task Status
 with st.sidebar:
-    st.subheader("Update Task Status")
+    st.subheader("Update task status")
     if tasks:
         with st.form("update_task_form"):
             task_id = st.selectbox(
@@ -104,7 +98,7 @@ with st.sidebar:
                 format_func=lambda x: f"Task {x}: {df_tasks[df_tasks['Task ID'] == x]['Title'].values[0]}",
             )
             new_status = st.radio(
-                "New Status",
+                "New status",
                 options=["pending", "in progress", "done"],  # Restricted statuses
                 horizontal=True,
             )
