@@ -36,8 +36,8 @@ st.markdown(
 # Sidebar: Add a New Task
 st.sidebar.subheader("Add a New Task")
 with st.sidebar.form("task_form"):
-    st.text_input("", placeholder="Enter your task title", key="title")
-    st.text_area("", placeholder="Task details (optional)", key="description")
+    st.text_input("Task Title", placeholder="Enter your task title", key="title", label_visibility="collapsed")
+    st.text_area("Description", placeholder="Task details (optional)", key="description", label_visibility="collapsed")
     st.slider("Urgency", 1, 5, 3, key="urgency")
     st.slider("Importance", 1, 5, 3, key="importance")
     submitted = st.form_submit_button("Add Task")
@@ -57,8 +57,8 @@ tasks = get_tasks()
 if tasks:
     # Convert tasks to a DataFrame
     df_tasks = pd.DataFrame(tasks)
-    df_tasks["Urgency"] = df_tasks["urgency"].apply(lambda x: "High" if x >= 4 else "Low")
-    df_tasks["Importance"] = df_tasks["importance"].apply(lambda x: "High" if x >= 4 else "Low")
+    df_tasks["Urgency Label"] = df_tasks["urgency"].apply(lambda x: "High" if x >= 4 else "Low")
+    df_tasks["Importance Label"] = df_tasks["importance"].apply(lambda x: "High" if x >= 4 else "Low")
     df_tasks.rename(
         columns={
             "id": "Task ID",
@@ -84,7 +84,7 @@ if tasks:
         st.subheader(status)
         if not data.empty:
             st.dataframe(
-                data[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At", "Updated At"]],
+                data[["Task ID", "Title", "Description", "Urgency Label", "Importance Label", "Created At", "Updated At"]],
                 use_container_width=True,
             )
         else:
@@ -110,8 +110,8 @@ if tasks:
         # Editable fields
         title = st.text_input("Title", value=selected_task["Title"])
         description = st.text_area("Description", value=selected_task["Description"])
-        urgency = st.slider("Urgency", 1, 5, int(selected_task["Urgency"]))
-        importance = st.slider("Importance", 1, 5, int(selected_task["Importance"]))
+        urgency = st.slider("Urgency", 1, 5, int(selected_task["urgency"]))
+        importance = st.slider("Importance", 1, 5, int(selected_task["importance"]))
         status = st.radio(
             "Status",
             options=["created", "pending", "in progress", "done"],
@@ -131,6 +131,7 @@ if tasks:
             st.success(f"Task {task_id} updated successfully!")
             st.session_state.refresh = not st.session_state.get("refresh", False)  # Trigger refresh
 
+    # Sidebar: Delete Task
     st.sidebar.subheader("Delete a Task")
     task_id_to_delete = st.sidebar.selectbox(
         "Select Task ID to Delete",
