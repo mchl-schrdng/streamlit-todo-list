@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
 from utils.database import initialize_db, add_task, get_tasks, update_task_status, delete_task
 
 # Initialize the database
@@ -34,19 +33,14 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Sidebar: Page Navigation
-page = st.sidebar.selectbox(
-    "Navigation",
-    options=["Task Manager", "Analytics", "Settings"]
-)
+# Initialize session state for refresh
+if "refresh" not in st.session_state:
+    st.session_state.refresh = False
 
-# Page 1: Task Manager
-if page == "Task Manager":
-    st.title("📋 Task Manager")
-
-    # Sidebar: Add a New Task
-    st.sidebar.subheader("Add a New Task")
-    with st.sidebar.form("task_form"):
+# Sidebar: Add a New Task
+with st.sidebar:
+    st.subheader("Add a New Task")
+    with st.form("task_form"):
         st.text_input("", placeholder="Enter your task title", key="title")
         st.text_area("", placeholder="Task details (optional)", key="description")
         st.slider("Urgency", 1, 5, 3, key="urgency")
@@ -61,52 +55,54 @@ if page == "Task Manager":
             st.session_state.importance,
         )
         st.success("Task added successfully!")
-        st.session_state.refresh = not st.session_state.get("refresh", False)
+        # Trigger refresh
+        st.session_state.refresh = not st.session_state.refresh
 
-    # Main Page: Tasks Grouped by Status
-    tasks = get_tasks()
+# Main Page: Tasks Grouped by Status
+tasks = get_tasks()
+if tasks:
+    # Convert tasks to a DataFrame
+    df_tasks = pd.DataFrame(tasks)
+    df_tasks["Urgency"] = df_tasks["urgent"].map({True: "High", False: "Low"})
+    df_tasks["Importance"] = df_tasks["important"].map({True: "High", False: "Low"})
+    df_tasks.rename(
+        columns={
+            "id": "Task ID",
+            "title": "Title",
+            "description": "Description",
+            "status": "Status",
+            "created_at": "Created At",
+        },
+        inplace=True,
+    )
+
+    # Task categories
+    task_status_mapping = {
+        "Created Tasks": df_tasks[df_tasks["Status"] == "created"],
+        "In Progress Tasks": df_tasks[df_tasks["Status"] == "in progress"],
+        "Pending Tasks": df_tasks[df_tasks["Status"] == "pending"],
+        "Done Tasks": df_tasks[df_tasks["Status"] == "done"],
+    }
+
+    # Display tasks by category
+    for status, data in task_status_mapping.items():
+        st.subheader(status)
+        if not data.empty:
+            st.dataframe(
+                data[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At"]],
+                use_container_width=True,
+            )
+        else:
+            st.write(f"No {status.lower()}.")
+
+else:
+    st.write("No tasks found.")
+
+# Sidebar: Update Task Status or Delete Task
+with st.sidebar:
+    st.subheader("Update or Delete Task")
     if tasks:
-        # Convert tasks to a DataFrame
-        df_tasks = pd.DataFrame(tasks)
-        df_tasks["Urgency"] = df_tasks["urgent"].map({True: "High", False: "Low"})
-        df_tasks["Importance"] = df_tasks["important"].map({True: "High", False: "Low"})
-        df_tasks.rename(
-            columns={
-                "id": "Task ID",
-                "title": "Title",
-                "description": "Description",
-                "status": "Status",
-                "created_at": "Created At",
-            },
-            inplace=True,
-        )
-
-        # Task categories
-        task_status_mapping = {
-            "Created Tasks": df_tasks[df_tasks["Status"] == "created"],
-            "In Progress Tasks": df_tasks[df_tasks["Status"] == "in progress"],
-            "Pending Tasks": df_tasks[df_tasks["Status"] == "pending"],
-            "Done Tasks": df_tasks[df_tasks["Status"] == "done"],
-        }
-
-        # Display tasks by category
-        for status, data in task_status_mapping.items():
-            st.subheader(status)
-            if not data.empty:
-                st.dataframe(
-                    data[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At"]],
-                    use_container_width=True,
-                )
-            else:
-                st.write(f"No {status.lower()}.")
-
-    else:
-        st.write("No tasks found.")
-
-    # Sidebar: Update Task Status or Delete Task
-    st.sidebar.subheader("Update or Delete Task")
-    if tasks:
-        with st.sidebar.form("update_task_form"):
+        with st.form("update_task_form"):
             task_id = st.selectbox(
                 "Select Task ID",
                 df_tasks["Task ID"].values,
@@ -114,58 +110,23 @@ if page == "Task Manager":
             )
             new_status = st.radio(
                 "New Status",
-                options=["pending", "in progress", "done"],
+                options=["pending", "in progress", "done"],  # Restricted statuses
                 horizontal=True,
             )
             update_submitted = st.form_submit_button("Update Status")
-            delete_submitted = st.form_submit_button("Delete Task")
+            delete_submitted = st.form_submit_button("Delete Task")  # Add delete task button
 
         if update_submitted:
             update_task_status(task_id, new_status)
             st.success(f"Task {task_id} status updated to '{new_status}'.")
-            st.session_state.refresh = not st.session_state.get("refresh", False)
+            # Trigger refresh
+            st.session_state.refresh = not st.session_state.refresh
 
         if delete_submitted:
-            delete_task(task_id)
+            delete_task(task_id)  # Call the delete function
             st.success(f"Task {task_id} deleted successfully!")
-            st.session_state.refresh = not st.session_state.get("refresh", False)
+            # Trigger refresh
+            st.session_state.refresh = not st.session_state.refresh
 
     else:
         st.write("No tasks available to update or delete.")
-
-# Page 2: Analytics
-elif page == "Analytics":
-    st.title("📊 Analytics")
-
-    # Get task data
-    tasks = get_tasks()
-    if tasks:
-        df_tasks = pd.DataFrame(tasks)
-        df_tasks["Created At"] = pd.to_datetime(df_tasks["created_at"])
-        df_tasks["Status"] = df_tasks["status"]
-
-        # Plot 1: Task Creation Over Time
-        task_counts = df_tasks["Created At"].dt.date.value_counts().sort_index()
-        fig, ax = plt.subplots()
-        task_counts.plot(kind="line", ax=ax, marker="o")
-        ax.set_title("Tasks Created Over Time")
-        ax.set_xlabel("Date")
-        ax.set_ylabel("Number of Tasks")
-        st.pyplot(fig)
-
-        # Plot 2: Task Status Distribution
-        status_counts = df_tasks["Status"].value_counts()
-        fig, ax = plt.subplots()
-        status_counts.plot(kind="bar", ax=ax, color=["#6a11cb", "#2575fc", "#ff6b6b", "#6aab8e"])
-        ax.set_title("Task Status Distribution")
-        ax.set_xlabel("Status")
-        ax.set_ylabel("Number of Tasks")
-        st.pyplot(fig)
-
-    else:
-        st.write("No task data available for analytics.")
-
-# Page 3: Settings (Placeholder)
-elif page == "Settings":
-    st.title("⚙️ Settings")
-    st.write("This page can be used to configure your app settings in the future.")
