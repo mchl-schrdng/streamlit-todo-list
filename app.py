@@ -27,6 +27,19 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# Define a mapping function for a specific scale
+def map_scale(value):
+    if value == 1:
+        return "Very Low"
+    elif value == 2:
+        return "Low"
+    elif value == 3:
+        return "Moderate"
+    elif value == 4:
+        return "High"
+    elif value == 5:
+        return "Very High"
+
 # Sidebar: Add a New Task
 st.sidebar.subheader("Add a New Task")
 with st.sidebar.form("task_form"):
@@ -51,8 +64,8 @@ tasks = get_tasks()
 if tasks:
     # Convert tasks to a DataFrame
     df_tasks = pd.DataFrame(tasks)
-    df_tasks["Urgency Label"] = df_tasks["urgency"].apply(lambda x: "High" if x >= 4 else "Low")
-    df_tasks["Importance Label"] = df_tasks["importance"].apply(lambda x: "High" if x >= 4 else "Low")
+    df_tasks["Urgency Label"] = df_tasks["urgency"].apply(map_scale)  # Apply the specific scale mapping
+    df_tasks["Importance Label"] = df_tasks["importance"].apply(map_scale)  # Apply the specific scale mapping
     df_tasks.rename(
         columns={
             "id": "Task ID",
@@ -109,8 +122,8 @@ if tasks:
         importance = st.slider("Importance", 1, 5, int(selected_task["importance"]))
         status = st.radio(
             "Status",
-            options=["created", "pending", "in progress", "done"],
-            index=["created", "pending", "in progress", "done"].index(selected_task["Status"]),
+            options=["pending", "in progress", "done"],
+            index=["pending", "in progress", "done"].index(selected_task["Status"]),
             horizontal=True,
         )
 
