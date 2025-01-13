@@ -17,7 +17,7 @@ with st.sidebar:
     # Add a New Task
     with st.form("task_form"):
         st.text_input("", placeholder="Enter your task title", key="title")
-        st.text_area("Description", placeholder="Task details (optional)", key="description")
+        st.text_area("", placeholder="Task details (optional)", key="description")
         st.slider("Urgency", 1, 5, 3, key="urgency")
         st.slider("Importance", 1, 5, 3, key="importance")
         submitted = st.form_submit_button("Add Task")
@@ -42,7 +42,7 @@ with st.sidebar:
             df_tasks["Task ID"].values,
             format_func=lambda x: f"Task {x}: {df_tasks[df_tasks['Task ID'] == x]['Title'].values[0]}",
         )
-        new_status = st.radio("New Status", options=["created", "done"], horizontal=True)
+        new_status = st.radio("", options=["created", "done"], horizontal=True)
 
         if st.button("Update Status"):
             update_task_status(task_id, new_status)
