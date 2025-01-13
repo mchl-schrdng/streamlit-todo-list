@@ -128,5 +128,11 @@ with st.sidebar:
             # Trigger refresh
             st.session_state.refresh = not st.session_state.refresh
 
+    # Add Reset Database Option in Sidebar
+    if st.sidebar.button("Reset Database"):
+        reset_database()  # Call the reset function
+        st.success("Database has been reset!")
+        st.experimental_rerun()
+
     else:
         st.write("No tasks available to update or delete.")

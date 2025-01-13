@@ -91,3 +91,14 @@ def delete_task(task_id):
     """, (task_id,))
     conn.commit()
     conn.close()
+
+def reset_database():
+    """Drop the tasks table and reinitialize the database."""
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    # Drop the existing tasks table
+    cursor.execute("DROP TABLE IF EXISTS tasks")
+    conn.commit()
+    conn.close()
+    # Reinitialize the database
+    initialize_db()
