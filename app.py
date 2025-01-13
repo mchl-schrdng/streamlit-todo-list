@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-from st_aggrid import AgGrid, GridOptionsBuilder
 from utils.database import initialize_db, add_task, get_tasks, update_task_status
 from utils.metrics import calculate_metrics
 
@@ -24,7 +23,7 @@ st.markdown(
 st.title("📝 Streamlit To-Do List")
 
 # Two-column layout
-col1, col2 = st.columns([1.5, 2])  # Adjusted column width ratio for better balance
+col1, col2 = st.columns([1.5, 2])  # Adjust column width ratio for better balance
 
 # Left Column: Add a New Action
 with col1:
@@ -40,7 +39,7 @@ with col1:
         add_task(title, description, urgency, importance)
         st.success("Task added successfully!")
 
-# Right Column: Task DataFrame and Metrics
+# Right Column: Task List
 with col2:
     st.header("Task List")
     tasks = get_tasks()
@@ -60,34 +59,30 @@ with col2:
             inplace=True,
         )
 
-        # Configure AgGrid for interactive editing
-        gb = GridOptionsBuilder.from_dataframe(df_tasks)
-        gb.configure_default_column(editable=True)
-        gb.configure_column("Status", editable=True, cellEditor="agSelectCellEditor", cellEditorParams={"values": ["created", "done"]})
-        grid_options = gb.build()
-
-        # Display editable DataFrame
-        grid_response = AgGrid(
-            df_tasks,
-            gridOptions=grid_options,
-            update_mode="MODEL_CHANGED",
-            editable=True,
-            height=800,
-            fit_columns_on_grid_load=True,
-        )
-
-        # Check for changes in the DataFrame
-        updated_df = grid_response["data"]
-
-        # Apply changes to the database
-        for _, row in updated_df.iterrows():
-            if row["Status"] != df_tasks.loc[row.name, "Status"]:  # Check if the status has changed
-                update_task_status(row["Task ID"], row["Status"])
-                st.success(f"Task '{row['Title']}' updated to '{row['Status']}'!")
+        # Display tasks in a table with interactive buttons for status change
+        for idx, row in df_tasks.iterrows():
+            st.write(f"**Task ID:** {row['Task ID']}")
+            st.write(f"**Title:** {row['Title']}")
+            st.write(f"**Description:** {row['Description']}")
+            st.write(f"**Urgency:** {row['Urgency']} | **Importance:** {row['Importance']}")
+            st.write(f"**Created At:** {row['Created At']}")
+            current_status = row["Status"]
+            new_status = st.selectbox(
+                f"Change Status for Task {row['Task ID']}",
+                options=["created", "done"],
+                index=0 if current_status == "created" else 1,
+                key=f"status_{row['Task ID']}",
+            )
+            if new_status != current_status:
+                if st.button(f"Update Task {row['Task ID']}"):
+                    update_task_status(row["Task ID"], new_status)
+                    st.success(f"Task '{row['Title']}' updated to '{new_status}'!")
+                    st.experimental_rerun()
+            st.divider()
     else:
         st.write("No tasks found.")
 
-    # Metrics Section
-    st.header("Metrics")
-    metrics = calculate_metrics()
-    st.write(f"Tasks completed today: {metrics['completed_today']}")
+# Metrics Section
+st.header("Metrics")
+metrics = calculate_metrics()
+st.write(f"Tasks completed today: {metrics['completed_today']}")
