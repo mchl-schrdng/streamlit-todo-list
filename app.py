@@ -53,25 +53,46 @@ with st.sidebar:
     else:
         st.write("No tasks available to update.")
 
-# Main Page: Task List
+# Main Page: Two DataFrames for Tasks
 tasks = get_tasks()
 if tasks:
-    st.dataframe(
-        pd.DataFrame(tasks)
-        .assign(
-            Urgency=lambda df: df["urgent"].map({True: "High", False: "Low"}),
-            Importance=lambda df: df["important"].map({True: "High", False: "Low"}),
-        )
-        .rename(
-            columns={
-                "id": "Task ID",
-                "title": "Title",
-                "description": "Description",
-                "status": "Status",
-                "created_at": "Created At",
-            }
-        )[["Task ID", "Title", "Description", "Urgency", "Importance", "Status", "Created At"]],
-        use_container_width=True,
+    # Convert tasks to a DataFrame
+    df_tasks = pd.DataFrame(tasks)
+    df_tasks["Urgency"] = df_tasks["urgent"].map({True: "High", False: "Low"})
+    df_tasks["Importance"] = df_tasks["important"].map({True: "High", False: "Low"})
+    df_tasks.rename(
+        columns={
+            "id": "Task ID",
+            "title": "Title",
+            "description": "Description",
+            "status": "Status",
+            "created_at": "Created At",
+        },
+        inplace=True,
     )
+
+    # Filter tasks into ongoing and completed
+    ongoing_tasks = df_tasks[df_tasks["Status"] == "created"]
+    completed_tasks = df_tasks[df_tasks["Status"] == "done"]
+
+    # Display Ongoing Tasks
+    st.subheader("Ongoing Tasks")
+    if not ongoing_tasks.empty:
+        st.dataframe(
+            ongoing_tasks[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At"]],
+            use_container_width=True,
+        )
+    else:
+        st.write("No ongoing tasks.")
+
+    # Display Completed Tasks
+    st.subheader("Completed Tasks")
+    if not completed_tasks.empty:
+        st.dataframe(
+            completed_tasks[["Task ID", "Title", "Description", "Urgency", "Importance", "Created At"]],
+            use_container_width=True,
+        )
+    else:
+        st.write("No completed tasks.")
 else:
     st.write("No tasks found.")
