@@ -3,7 +3,7 @@ from datetime import datetime
 
 DB_NAME = "database.db"
 
-# Initialize the database
+# Initialize the database (without description)
 def initialize_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
@@ -11,7 +11,6 @@ def initialize_db():
         CREATE TABLE IF NOT EXISTS tasks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
-            description TEXT,
             urgency INTEGER,
             importance INTEGER,
             status TEXT DEFAULT 'to do',
@@ -22,39 +21,38 @@ def initialize_db():
     conn.commit()
     conn.close()
 
-# Add a new task to the database
-def add_task(title, description, urgency, importance):
+# Add a new task
+def add_task(title, urgency, importance):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT INTO tasks (title, description, urgency, importance, status)
-        VALUES (?, ?, ?, ?, 'to do')  -- Explicitly set the status as 'to do'
-    """, (title, description, urgency, importance))
+        INSERT INTO tasks (title, urgency, importance, status)
+        VALUES (?, ?, ?, 'to do')
+    """, (title, urgency, importance))
     conn.commit()
     conn.close()
 
-# Get all tasks from the database
+# Get all tasks
 def get_tasks():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT id, title, description, urgency, importance, status, created_at, updated_at
+        SELECT id, title, urgency, importance, status, created_at, updated_at
         FROM tasks
     """)
-    tasks = cursor.fetchall()
+    rows = cursor.fetchall()
     conn.close()
     return [
         {
             "id": row[0],
             "title": row[1],
-            "description": row[2],
-            "urgency": row[3],
-            "importance": row[4],
-            "status": row[5],
-            "created_at": row[6],
-            "updated_at": row[7],
+            "urgency": row[2],
+            "importance": row[3],
+            "status": row[4],
+            "created_at": row[5],
+            "updated_at": row[6],
         }
-        for row in tasks
+        for row in rows
     ]
 
 # Update a task's status
@@ -69,15 +67,15 @@ def update_task_status(task_id, status):
     conn.commit()
     conn.close()
 
-# Update task details
-def update_task_details(task_id, title, description, urgency, importance):
+# Update task details (no description)
+def update_task_details(task_id, title, urgency, importance):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute("""
         UPDATE tasks
-        SET title = ?, description = ?, urgency = ?, importance = ?, updated_at = CURRENT_TIMESTAMP
+        SET title = ?, urgency = ?, importance = ?, updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
-    """, (title, description, urgency, importance, task_id))
+    """, (title, urgency, importance, task_id))
     conn.commit()
     conn.close()
 
@@ -94,12 +92,9 @@ def delete_task(task_id):
 
 # Reset the database
 def reset_database():
-    """Drop the tasks table and reinitialize the database."""
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
-    # Drop the existing tasks table
     cursor.execute("DROP TABLE IF EXISTS tasks")
     conn.commit()
     conn.close()
-    # Reinitialize the database
     initialize_db()
