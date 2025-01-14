@@ -157,7 +157,7 @@ else:
     st.sidebar.write("No tasks available to delete.")
 
 # Move Reset Database Option to the End of Sidebar
-st.subheader('', divider='rainbow')
+st.sidebar.subheader('', divider='rainbow')
 if st.sidebar.button("Reset Database (End)"):
     reset_database()
     st.sidebar.success("Database has been reset!")  # Message directly below reset option
