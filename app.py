@@ -39,6 +39,10 @@ def map_scale(value):
     elif value == 5:
         return "Very High"
 
+# Compute Eisenhower Ratio
+def compute_eisenhower_ratio(importance, urgency):
+    return importance / (urgency + 1)  # Example formula
+
 # Sidebar: Add a New Task
 st.sidebar.subheader("Add a New Task")
 with st.sidebar.form("task_form"):
@@ -61,16 +65,17 @@ with st.sidebar.form("task_form"):
 # Main Page: Tasks Grouped by Status
 tasks = get_tasks()
 if tasks:
-    # Map urgency and importance to specific scale labels
+    # Compute Eisenhower Ratio and add it to each task
     for task in tasks:
         task["Urgency Label"] = map_scale(task["urgency"])
         task["Importance Label"] = map_scale(task["importance"])
+        task["Eisenhower Ratio"] = compute_eisenhower_ratio(task["importance"], task["urgency"])
 
     # Task categories
     task_status_mapping = {
-        "To Do": [task for task in tasks if task["status"] == "to do"],
-        "Doing": [task for task in tasks if task["status"] == "doing"],
-        "Done": [task for task in tasks if task["status"] == "done"],
+        "To Do": sorted([task for task in tasks if task["status"] == "to do"], key=lambda x: x["Eisenhower Ratio"], reverse=True),
+        "Doing": sorted([task for task in tasks if task["status"] == "doing"], key=lambda x: x["Eisenhower Ratio"], reverse=True),
+        "Done": sorted([task for task in tasks if task["status"] == "done"], key=lambda x: x["Eisenhower Ratio"], reverse=True),
     }
 
     # Display tasks by category
@@ -83,6 +88,7 @@ if tasks:
                   "Description": task["description"],
                   "Urgency": task["Urgency Label"],
                   "Importance": task["Importance Label"],
+                  "Eisenhower Ratio": round(task["Eisenhower Ratio"], 2),  # Display rounded ratio
                   "Created At": task["created_at"],
                   "Updated At": task["updated_at"]} for task in data],
                 use_container_width=True,
