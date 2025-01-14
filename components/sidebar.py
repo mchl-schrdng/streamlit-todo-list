@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.database import add_task, update_task_status, update_task_details, delete_task, reset_database
+from utils.database import add_task, get_tasks, update_task_status, update_task_details, delete_task, reset_database
 
 def render_sidebar():
     """Renders the sidebar with task management options."""
@@ -18,7 +18,7 @@ def render_sidebar():
     st.sidebar.markdown("---")
 
     # Update Existing Task
-    tasks = get_tasks()
+    tasks = get_tasks()  # This will now work as `get_tasks` is imported
     if tasks:
         st.sidebar.subheader("Update Existing Task")
         with st.sidebar.form("update_task_form"):
