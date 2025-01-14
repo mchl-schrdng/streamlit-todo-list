@@ -39,19 +39,14 @@ def map_scale(value):
     elif value == 5:
         return "Very High"
 
-# Ensure tasks are always initialized
-if "tasks" not in st.session_state:
-    st.session_state.tasks = get_tasks()
+# Initialize refresh state
+if "refresh_tasks" not in st.session_state:
+    st.session_state.refresh_tasks = True
 
 # Fetch tasks dynamically when needed
-if "refresh_tasks" not in st.session_state:
-    st.session_state.refresh_tasks = False
-
 if st.session_state.refresh_tasks:
-    st.session_state.tasks = get_tasks()
-    st.session_state.refresh_tasks = False
-
-tasks = st.session_state.tasks  # Ensure `tasks` is always defined
+    tasks = get_tasks()  # Fetch from the database
+    st.session_state.refresh_tasks = False  # Reset flag
 
 # Sidebar: Add a New Task
 st.sidebar.subheader("Add a New Task")
