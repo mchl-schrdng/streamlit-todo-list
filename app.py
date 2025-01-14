@@ -1,6 +1,5 @@
 import streamlit as st
 from utils.database import initialize_db, add_task, get_tasks, update_task_status, update_task_details, delete_task, reset_database
-import random
 
 # Initialize the database
 initialize_db()
@@ -13,24 +12,15 @@ st.set_page_config(
     page_icon="🤖"
 )
 
-def generate_random_gradient():
-    # Generate two random colors in hex format
-    color1 = f"#{random.randint(0, 0xFFFFFF):06x}"
-    color2 = f"#{random.randint(0, 0xFFFFFF):06x}"
-    return color1, color2
-
-# Generate random gradient colors
-gradient_color1, gradient_color2 = generate_random_gradient()
-
-# Apply the random gradient to the app background
+# Apply global styling
 st.markdown(
-    f"""
+    """
     <style>
     /* Background gradient for the main app */
-    [data-testid="stAppViewContainer"] {{
-        background: linear-gradient(to right, {gradient_color1}, {gradient_color2});
+    [data-testid="stAppViewContainer"] {
+        background: linear-gradient(to right, #6a11cb, #2575fc);
         color: white;
-    }}
+    }
     </style>
     """,
     unsafe_allow_html=True,
