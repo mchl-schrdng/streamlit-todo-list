@@ -102,23 +102,23 @@ else:
 # Sidebar: Update Existing Task
 st.sidebar.markdown("---")
 st.sidebar.subheader("Update Existing Task")
-if tasks:
+
+# Filter out tasks with "to do" status for updates
+updateable_tasks = df_tasks[df_tasks["Status"].isin(["doing", "done"])]
+
+if not updateable_tasks.empty:
     with st.sidebar.form("update_task_form"):
         # Dropdown to select the task to update
         task_id = st.selectbox(
             "Select Task ID to Update",
-            df_tasks["Task ID"].values,
-            format_func=lambda x: f"Task {x}: {df_tasks[df_tasks['Task ID'] == x]['Title'].values[0]}",
+            updateable_tasks["Task ID"].values,
+            format_func=lambda x: f"Task {x}: {updateable_tasks[updateable_tasks['Task ID'] == x]['Title'].values[0]}",
         )
 
         # Fetch current values for the selected task
-        selected_task = df_tasks[df_tasks["Task ID"] == task_id].iloc[0]
+        selected_task = updateable_tasks[updateable_tasks["Task ID"] == task_id].iloc[0]
 
-        # Editable fields
-        title = selected_task["Title"]  # Title won't change in this section
-        description = selected_task["Description"]  # Description won't change
-        urgency = selected_task["Urgency Label"]  # Urgency remains static
-        importance = selected_task["Importance Label"]  # Importance remains static
+        # Editable fields for updating status only
         status = st.radio(
             "Status",
             options=["doing", "done"],  # Only allow "doing" and "done"
@@ -134,22 +134,21 @@ if tasks:
             update_task_status(task_id, status)  # Update the status
             st.success(f"Task {task_id} updated successfully!")
             st.session_state.refresh = not st.session_state.get("refresh", False)  # Trigger refresh
-
-    # Sidebar: Delete Task
-    st.sidebar.markdown("---")
-    st.sidebar.subheader("Delete a Task")
-    task_id_to_delete = st.sidebar.selectbox(
-        "Select Task ID to Delete",
-        df_tasks["Task ID"].values,
-        format_func=lambda x: f"Task {x}: {df_tasks[df_tasks['Task ID'] == x]['Title'].values[0]}",
-    )
-    if st.sidebar.button("Delete Task"):
-        delete_task(task_id_to_delete)
-        st.success(f"Task {task_id_to_delete} deleted successfully!")
-        st.session_state.refresh = not st.session_state.get("refresh", False)  # Trigger refresh
-
 else:
-    st.sidebar.write("No tasks available to update or delete.")
+    st.sidebar.write("No tasks available to update.")
+
+# Sidebar: Delete Task
+st.sidebar.markdown("---")
+st.sidebar.subheader("Delete a Task")
+task_id_to_delete = st.sidebar.selectbox(
+    "Select Task ID to Delete",
+    df_tasks["Task ID"].values,
+    format_func=lambda x: f"Task {x}: {df_tasks[df_tasks['Task ID'] == x]['Title'].values[0]}",
+)
+if st.sidebar.button("Delete Task"):
+    delete_task(task_id_to_delete)
+    st.success(f"Task {task_id_to_delete} deleted successfully!")
+    st.session_state.refresh = not st.session_state.get("refresh", False)  # Trigger refresh
 
 # Move Reset Database Option to the End of Sidebar
 st.sidebar.markdown("---")
