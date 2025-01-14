@@ -152,8 +152,11 @@ if tasks:
             update_task_details(
                 task_id, title, description, urgency, importance
             )  # Update other details
+
+            # Trigger refresh
+            st.session_state.refresh_tasks = True
+            st.session_state.tasks = get_tasks()  # Immediately fetch updated tasks
             st.success(f"Task {task_id} updated successfully!")
-            st.session_state.refresh_tasks = True  # Trigger refresh
 else:
     st.sidebar.write("No tasks available to update.")
 
