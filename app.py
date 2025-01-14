@@ -43,14 +43,6 @@ def map_scale(value):
 if "tasks" not in st.session_state:
     st.session_state.tasks = get_tasks()
 
-# Fetch tasks dynamically when needed
-if "refresh_tasks" not in st.session_state:
-    st.session_state.refresh_tasks = False
-
-if st.session_state.refresh_tasks:
-    st.session_state.tasks = get_tasks()
-    st.session_state.refresh_tasks = False
-
 tasks = st.session_state.tasks  # Ensure `tasks` is always defined
 
 # Sidebar: Add a New Task
@@ -70,7 +62,7 @@ if submitted and st.session_state.title:
         st.session_state.importance,
     )
     st.success("Task added successfully!")
-    st.session_state.refresh_tasks = True  # Trigger refresh
+    st.experimental_rerun()  # Force page to re-run
 
 # Main Page: Tasks Grouped by Status
 if tasks:
@@ -152,11 +144,8 @@ if tasks:
             update_task_details(
                 task_id, title, description, urgency, importance
             )  # Update other details
-
-            # Trigger refresh
-            st.session_state.refresh_tasks = True
-            st.session_state.tasks = get_tasks()  # Immediately fetch updated tasks
             st.success(f"Task {task_id} updated successfully!")
+            st.experimental_rerun()  # Force page to re-run
 else:
     st.sidebar.write("No tasks available to update.")
 
@@ -172,7 +161,7 @@ if tasks:
     if st.sidebar.button("Delete Task"):
         delete_task(task_id_to_delete)
         st.success(f"Task {task_id_to_delete} deleted successfully!")
-        st.session_state.refresh_tasks = True  # Trigger refresh
+        st.experimental_rerun()  # Force page to re-run
 else:
     st.sidebar.write("No tasks available to delete.")
 
@@ -181,4 +170,4 @@ st.sidebar.markdown("---")
 if st.sidebar.button("Reset Database (End)"):
     reset_database()
     st.success("Database has been reset!")
-    st.session_state.refresh_tasks = True  # Trigger refresh
+    st.experimental_rerun()  # Force page to re-run
