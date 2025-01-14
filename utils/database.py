@@ -14,7 +14,7 @@ def initialize_db():
             description TEXT,
             urgency INTEGER,
             importance INTEGER,
-            status TEXT DEFAULT 'created',
+            status TEXT DEFAULT 'to do',  -- Changed default status to 'to do'
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
@@ -27,8 +27,8 @@ def add_task(title, description, urgency, importance):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT INTO tasks (title, description, urgency, importance)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO tasks (title, description, urgency, importance, status)
+        VALUES (?, ?, ?, ?, 'to do')  -- Explicitly set the status as 'to do'
     """, (title, description, urgency, importance))
     conn.commit()
     conn.close()
@@ -92,6 +92,7 @@ def delete_task(task_id):
     conn.commit()
     conn.close()
 
+# Reset the database
 def reset_database():
     """Drop the tasks table and reinitialize the database."""
     conn = sqlite3.connect(DB_NAME)
