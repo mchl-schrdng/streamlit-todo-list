@@ -39,9 +39,6 @@ def map_scale(value):
     elif value == 5:
         return "Very High"
 
-# Success message container
-success_message = ""
-
 # Sidebar: Add a New Task
 st.sidebar.subheader("Add a New Task")
 with st.sidebar.form("task_form"):
@@ -51,15 +48,15 @@ with st.sidebar.form("task_form"):
     st.slider("Importance", 1, 5, 3, key="importance")
     submitted = st.form_submit_button("Add Task")
 
-if submitted and st.session_state.title:
-    add_task(
-        st.session_state.title,
-        st.session_state.description,
-        st.session_state.urgency,
-        st.session_state.importance,
-    )
-    success_message = "Task added successfully!"  # Update success message
-    st.session_state.refresh = not st.session_state.get("refresh", False)  # Trigger refresh
+    if submitted and st.session_state.title:
+        add_task(
+            st.session_state.title,
+            st.session_state.description,
+            st.session_state.urgency,
+            st.session_state.importance,
+        )
+        st.success("Task added successfully!")  # Message directly below the form
+        st.experimental_rerun()  # Trigger refresh
 
 # Main Page: Tasks Grouped by Status
 tasks = get_tasks()
@@ -142,8 +139,8 @@ if tasks:
             update_task_details(
                 task_id, title, description, urgency, importance
             )  # Update other details
-            success_message = f"Task {task_id} updated successfully!"  # Update success message
-            st.session_state.refresh = not st.session_state.get("refresh", False)  # Trigger refresh
+            st.success(f"Task {task_id} updated successfully!")  # Message directly below the form
+            st.experimental_rerun()  # Trigger refresh
 else:
     st.sidebar.write("No tasks available to update.")
 
@@ -158,8 +155,8 @@ if tasks:
     )
     if st.sidebar.button("Delete Task"):
         delete_task(task_id_to_delete)
-        success_message = f"Task {task_id_to_delete} deleted successfully!"  # Update success message
-        st.session_state.refresh = not st.session_state.get("refresh", False)  # Trigger refresh
+        st.sidebar.success(f"Task {task_id_to_delete} deleted successfully!")  # Message directly below delete section
+        st.experimental_rerun()  # Trigger refresh
 else:
     st.sidebar.write("No tasks available to delete.")
 
@@ -167,9 +164,5 @@ else:
 st.sidebar.markdown("---")
 if st.sidebar.button("Reset Database (End)"):
     reset_database()
-    success_message = "Database has been reset!"  # Update success message
-    st.session_state.refresh = not st.session_state.get("refresh", False)
-
-# Display success message below task list
-if success_message:
-    st.success(success_message)
+    st.sidebar.success("Database has been reset!")  # Message directly below reset option
+    st.experimental_rerun()
