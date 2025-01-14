@@ -39,10 +39,6 @@ def map_scale(value):
     elif value == 5:
         return "Very High"
 
-# Compute Eisenhower Ratio
-def compute_eisenhower_ratio(importance, urgency):
-    return importance / (urgency + 1)  # Example formula
-
 # Sidebar: Add a New Task
 st.sidebar.subheader("Add a New Task")
 with st.sidebar.form("task_form"):
@@ -65,17 +61,17 @@ with st.sidebar.form("task_form"):
 # Main Page: Tasks Grouped by Status
 tasks = get_tasks()
 if tasks:
-    # Compute Eisenhower Ratio and add it to each task
+    # Add Eisenhower ratio and map urgency and importance to specific scale labels
     for task in tasks:
         task["Urgency Label"] = map_scale(task["urgency"])
         task["Importance Label"] = map_scale(task["importance"])
-        task["Eisenhower Ratio"] = compute_eisenhower_ratio(task["importance"], task["urgency"])
+        task["Eisenhower Ratio"] = round(task["importance"] / task["urgency"], 2)
 
     # Task categories
     task_status_mapping = {
-        "To Do": sorted([task for task in tasks if task["status"] == "to do"], key=lambda x: x["Eisenhower Ratio"], reverse=True),
-        "Doing": sorted([task for task in tasks if task["status"] == "doing"], key=lambda x: x["Eisenhower Ratio"], reverse=True),
-        "Done": sorted([task for task in tasks if task["status"] == "done"], key=lambda x: x["Eisenhower Ratio"], reverse=True),
+        "To Do": [task for task in tasks if task["status"] == "to do"],
+        "Doing": [task for task in tasks if task["status"] == "doing"],
+        "Done": [task for task in tasks if task["status"] == "done"],
     }
 
     # Display tasks by category
@@ -88,7 +84,7 @@ if tasks:
                   "Description": task["description"],
                   "Urgency": task["Urgency Label"],
                   "Importance": task["Importance Label"],
-                  "Eisenhower Ratio": round(task["Eisenhower Ratio"], 2),  # Display rounded ratio
+                  "Eisenhower Ratio": task["Eisenhower Ratio"],
                   "Created At": task["created_at"],
                   "Updated At": task["updated_at"]} for task in data],
                 use_container_width=True,
@@ -114,19 +110,14 @@ if tasks:
         # Fetch current values for the selected task
         selected_task = next(task for task in tasks if task["id"] == task_id)
 
-        # Allow transitioning based on current status
-        current_status = selected_task["status"]
-        if current_status == "to do":
-            status_options = ["doing", "done"]
-        elif current_status == "doing":
-            status_options = ["to do", "done"]
-        elif current_status == "done":
-            status_options = ["doing"]
+        # Static status options
+        status_options = ["to do", "doing", "done"]
 
+        # Radio button for status
         status = st.radio(
             "Status",
             options=status_options,
-            index=status_options.index(current_status) if current_status in status_options else 0,
+            index=status_options.index(selected_task["status"]),
             horizontal=True,
         )
 
