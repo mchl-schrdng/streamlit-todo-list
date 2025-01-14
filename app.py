@@ -61,11 +61,11 @@ with st.sidebar.form("task_form"):
 # Main Page: Tasks Grouped by Status
 tasks = get_tasks()
 if tasks:
-    # Add Eisenhower ratio and map urgency and importance to specific scale labels
+    # Map urgency and importance to specific scale labels and calculate Eisenhower ratio
     for task in tasks:
         task["Urgency Label"] = map_scale(task["urgency"])
         task["Importance Label"] = map_scale(task["importance"])
-        task["Eisenhower Ratio"] = round(task["importance"] / task["urgency"], 2)
+        task["Eisenhower Ratio"] = task["importance"] * task["urgency"]  # Eisenhower ratio based on product
 
     # Task categories
     task_status_mapping = {
@@ -86,7 +86,7 @@ if tasks:
                   "Importance": task["Importance Label"],
                   "Eisenhower Ratio": task["Eisenhower Ratio"],
                   "Created At": task["created_at"],
-                  "Updated At": task["updated_at"]} for task in data],
+                  "Updated At": task["updated_at"]} for task in sorted(data, key=lambda x: x["Eisenhower Ratio"], reverse=True)],
                 use_container_width=True,
             )
         else:
@@ -110,10 +110,9 @@ if tasks:
         # Fetch current values for the selected task
         selected_task = next(task for task in tasks if task["id"] == task_id)
 
-        # Static status options
+        # Static options for status update
         status_options = ["to do", "doing", "done"]
 
-        # Radio button for status
         status = st.radio(
             "Status",
             options=status_options,
