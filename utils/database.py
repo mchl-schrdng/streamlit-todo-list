@@ -11,10 +11,9 @@ def initialize_db():
         CREATE TABLE IF NOT EXISTS tasks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
-            description TEXT,
             urgency INTEGER,
             importance INTEGER,
-            status TEXT DEFAULT 'to do',  -- Changed default status to 'to do'
+            status TEXT DEFAULT 'to do',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )

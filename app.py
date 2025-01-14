@@ -43,7 +43,6 @@ def map_scale(value):
 st.sidebar.subheader("Add a New Task")
 with st.sidebar.form("task_form"):
     st.text_input("Task Title", placeholder="Enter your task title", key="title", label_visibility="collapsed")
-    st.text_area("Description", placeholder="Task details (optional)", key="description", label_visibility="collapsed")
     st.slider("Urgency", 1, 5, 3, key="urgency")
     st.slider("Importance", 1, 5, 3, key="importance")
     submitted = st.form_submit_button("Add Task")
@@ -51,7 +50,6 @@ with st.sidebar.form("task_form"):
     if submitted and st.session_state.title:
         add_task(
             st.session_state.title,
-            st.session_state.description,
             st.session_state.urgency,
             st.session_state.importance,
         )
@@ -81,7 +79,6 @@ if tasks:
             st.dataframe(
                 [{"Task ID": task["id"],
                   "Title": task["title"],
-                  "Description": task["description"],
                   "Urgency": task["Urgency Label"],
                   "Importance": task["Importance Label"],
                   "Eisenhower Ratio": task["Eisenhower Ratio"],
@@ -122,7 +119,6 @@ if tasks:
 
         # Allow updating other task details
         title = st.text_input("Title", value=selected_task["title"])
-        description = st.text_area("Description", value=selected_task["description"])
         urgency = st.slider("Urgency", 1, 5, selected_task["urgency"])
         importance = st.slider("Importance", 1, 5, selected_task["importance"])
 
@@ -133,7 +129,7 @@ if tasks:
             # Update the task in the database
             update_task_status(task_id, status)  # Update the status
             update_task_details(
-                task_id, title, description, urgency, importance
+                task_id, title, urgency, importance
             )  # Update other details
             st.success(f"Task {task_id} updated successfully!")  # Message directly below the form
             st.rerun()  # Trigger refresh
