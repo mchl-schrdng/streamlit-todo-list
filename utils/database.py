@@ -11,9 +11,10 @@ def initialize_db():
         CREATE TABLE IF NOT EXISTS tasks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
+            description TEXT,
             urgency INTEGER,
             importance INTEGER,
-            status TEXT DEFAULT 'to do',
+            status TEXT DEFAULT 'to do',  -- Changed default status to 'to do'
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
@@ -91,6 +92,7 @@ def delete_task(task_id):
     conn.commit()
     conn.close()
 
+# Reset the database
 def reset_database():
     """Drop the tasks table and reinitialize the database."""
     conn = sqlite3.connect(DB_NAME)
@@ -99,5 +101,5 @@ def reset_database():
     cursor.execute("DROP TABLE IF EXISTS tasks")
     conn.commit()
     conn.close()
-    # Reinitialize the database with the updated schema
+    # Reinitialize the database
     initialize_db()
