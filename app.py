@@ -62,7 +62,7 @@ if submitted and st.session_state.title:
         st.session_state.importance,
     )
     st.success("Task added successfully!")
-    st.experimental_rerun()  # Force page to re-run
+    st.rerun()  # Force page to re-run
 
 # Main Page: Tasks Grouped by Status
 if tasks:
@@ -145,7 +145,7 @@ if tasks:
                 task_id, title, description, urgency, importance
             )  # Update other details
             st.success(f"Task {task_id} updated successfully!")
-            st.experimental_rerun()  # Force page to re-run
+            st.rerun()  # Force page to re-run
 else:
     st.sidebar.write("No tasks available to update.")
 
@@ -161,7 +161,7 @@ if tasks:
     if st.sidebar.button("Delete Task"):
         delete_task(task_id_to_delete)
         st.success(f"Task {task_id_to_delete} deleted successfully!")
-        st.experimental_rerun()  # Force page to re-run
+        st.rerun()  # Force page to re-run
 else:
     st.sidebar.write("No tasks available to delete.")
 
@@ -170,4 +170,4 @@ st.sidebar.markdown("---")
 if st.sidebar.button("Reset Database (End)"):
     reset_database()
     st.success("Database has been reset!")
-    st.experimental_rerun()  # Force page to re-run
+    st.rerun()  # Force page to re-run
