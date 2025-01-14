@@ -14,7 +14,7 @@ def initialize_db():
             description TEXT,
             urgency INTEGER,
             importance INTEGER,
-            status TEXT DEFAULT 'to do',  -- Changed default status to 'to do'
+            status TEXT DEFAULT 'to do',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
