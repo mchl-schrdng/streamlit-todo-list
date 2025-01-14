@@ -80,9 +80,8 @@ if tasks:
 
     # Task categories
     task_status_mapping = {
-        "Backlog": df_tasks[df_tasks["Status"] == "created"],
-        "In progress": df_tasks[df_tasks["Status"] == "in progress"],
-        "Pending": df_tasks[df_tasks["Status"] == "pending"],
+        "To Do": df_tasks[df_tasks["Status"] == "to do"],
+        "Doing": df_tasks[df_tasks["Status"] == "doing"],
         "Done": df_tasks[df_tasks["Status"] == "done"],
     }
 
@@ -116,14 +115,14 @@ if tasks:
         selected_task = df_tasks[df_tasks["Task ID"] == task_id].iloc[0]
 
         # Editable fields
-        title = st.text_input("Title", value=selected_task["Title"])
-        description = st.text_area("Description", value=selected_task["Description"])
-        urgency = st.slider("Urgency", 1, 5, int(selected_task["urgency"]))
-        importance = st.slider("Importance", 1, 5, int(selected_task["importance"]))
+        title = selected_task["Title"]  # Title won't change in this section
+        description = selected_task["Description"]  # Description won't change
+        urgency = selected_task["Urgency Label"]  # Urgency remains static
+        importance = selected_task["Importance Label"]  # Importance remains static
         status = st.radio(
             "Status",
-            options=["created", "pending", "in progress", "done"],
-            index=["created", "pending", "in progress", "done"].index(selected_task["Status"]),
+            options=["doing", "done"],  # Only allow "doing" and "done"
+            index=["doing", "done"].index(selected_task["Status"]),
             horizontal=True,
         )
 
@@ -133,9 +132,6 @@ if tasks:
         if update_submitted:
             # Update the task in the database
             update_task_status(task_id, status)  # Update the status
-            update_task_details(
-                task_id, title, description, urgency, importance
-            )  # Update other details
             st.success(f"Task {task_id} updated successfully!")
             st.session_state.refresh = not st.session_state.get("refresh", False)  # Trigger refresh
 
