@@ -51,6 +51,7 @@ with st.sidebar.form("task_form"):
     if submitted and st.session_state.title:
         add_task(
             st.session_state.title,
+            st.session_state.description,
             st.session_state.urgency,
             st.session_state.importance,
         )
