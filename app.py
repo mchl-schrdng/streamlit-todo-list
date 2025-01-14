@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 from utils.database import initialize_db, add_task, get_tasks, update_task_status, update_task_details, delete_task, reset_database
 
 # Initialize the database
@@ -62,70 +61,74 @@ if submitted and st.session_state.title:
 # Main Page: Tasks Grouped by Status
 tasks = get_tasks()
 if tasks:
-    # Convert tasks to a DataFrame
-    df_tasks = pd.DataFrame(tasks)
-    df_tasks["Urgency Label"] = df_tasks["urgency"].apply(map_scale)  # Apply the specific scale mapping
-    df_tasks["Importance Label"] = df_tasks["importance"].apply(map_scale)  # Apply the specific scale mapping
-    df_tasks.rename(
-        columns={
-            "id": "Task ID",
-            "title": "Title",
-            "description": "Description",
-            "status": "Status",
-            "created_at": "Created At",
-            "updated_at": "Updated At",
-        },
-        inplace=True,
-    )
+    # Map urgency and importance to specific scale labels
+    for task in tasks:
+        task["Urgency Label"] = map_scale(task["urgency"])
+        task["Importance Label"] = map_scale(task["importance"])
 
     # Task categories
     task_status_mapping = {
-        "To Do": df_tasks[df_tasks["Status"] == "to do"],
-        "Doing": df_tasks[df_tasks["Status"] == "doing"],
-        "Done": df_tasks[df_tasks["Status"] == "done"],
+        "To Do": [task for task in tasks if task["status"] == "to do"],
+        "Doing": [task for task in tasks if task["status"] == "doing"],
+        "Done": [task for task in tasks if task["status"] == "done"],
     }
 
     # Display tasks by category
     for status, data in task_status_mapping.items():
         st.subheader(status)
-        if not data.empty:
+        if data:
             st.dataframe(
-                data[["Task ID", "Title", "Description", "Urgency Label", "Importance Label", "Created At", "Updated At"]],
+                [{"Task ID": task["id"],
+                  "Title": task["title"],
+                  "Description": task["description"],
+                  "Urgency": task["Urgency Label"],
+                  "Importance": task["Importance Label"],
+                  "Created At": task["created_at"],
+                  "Updated At": task["updated_at"]} for task in data],
                 use_container_width=True,
             )
         else:
             st.write(f"No {status.lower()} tasks.")
 else:
-    # Initialize an empty DataFrame to avoid errors
-    df_tasks = pd.DataFrame(columns=["Task ID", "Title", "Description", "Urgency", "Importance", "Status", "Created At", "Updated At"])
     st.write("No tasks found.")
 
 # Sidebar: Update Existing Task
 st.sidebar.markdown("---")
 st.sidebar.subheader("Update Existing Task")
 
-# Filter out tasks with "to do" status for updates
-updateable_tasks = df_tasks[df_tasks["Status"].isin(["doing", "done"])]
-
-if not updateable_tasks.empty:
+if tasks:
     with st.sidebar.form("update_task_form"):
         # Dropdown to select the task to update
         task_id = st.selectbox(
             "Select Task ID to Update",
-            updateable_tasks["Task ID"].values,
-            format_func=lambda x: f"Task {x}: {updateable_tasks[updateable_tasks['Task ID'] == x]['Title'].values[0]}",
+            [task["id"] for task in tasks],
+            format_func=lambda x: f"Task {x}: {next(task['title'] for task in tasks if task['id'] == x)}",
         )
 
         # Fetch current values for the selected task
-        selected_task = updateable_tasks[updateable_tasks["Task ID"] == task_id].iloc[0]
+        selected_task = next(task for task in tasks if task["id"] == task_id)
 
-        # Editable fields for updating status only
+        # Allow transitioning based on current status
+        current_status = selected_task["status"]
+        if current_status == "to do":
+            status_options = ["doing", "done"]
+        elif current_status == "doing":
+            status_options = ["to do", "done"]
+        elif current_status == "done":
+            status_options = ["doing"]
+
         status = st.radio(
             "Status",
-            options=["doing", "done"],  # Only allow "doing" and "done"
-            index=["doing", "done"].index(selected_task["Status"]),
+            options=status_options,
+            index=status_options.index(current_status) if current_status in status_options else 0,
             horizontal=True,
         )
+
+        # Allow updating other task details
+        title = st.text_input("Title", value=selected_task["title"])
+        description = st.text_area("Description", value=selected_task["description"])
+        urgency = st.slider("Urgency", 1, 5, selected_task["urgency"])
+        importance = st.slider("Importance", 1, 5, selected_task["importance"])
 
         # Submit button
         update_submitted = st.form_submit_button("Update Task")
@@ -133,6 +136,9 @@ if not updateable_tasks.empty:
         if update_submitted:
             # Update the task in the database
             update_task_status(task_id, status)  # Update the status
+            update_task_details(
+                task_id, title, description, urgency, importance
+            )  # Update other details
             st.success(f"Task {task_id} updated successfully!")
             st.session_state.refresh = not st.session_state.get("refresh", False)  # Trigger refresh
 else:
@@ -141,11 +147,11 @@ else:
 # Sidebar: Delete Task
 st.sidebar.markdown("---")
 st.sidebar.subheader("Delete a Task")
-if not df_tasks.empty:
+if tasks:
     task_id_to_delete = st.sidebar.selectbox(
         "Select Task ID to Delete",
-        df_tasks["Task ID"].values,
-        format_func=lambda x: f"Task {x}: {df_tasks[df_tasks['Task ID'] == x]['Title'].values[0]}",
+        [task["id"] for task in tasks],
+        format_func=lambda x: f"Task {x}: {next(task['title'] for task in tasks if task['id'] == x)}",
     )
     if st.sidebar.button("Delete Task"):
         delete_task(task_id_to_delete)
