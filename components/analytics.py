@@ -4,25 +4,10 @@ from utils.plotly_utils import apply_transparent_layout
 from datetime import datetime
 
 def display_analytics(tasks):
-    """Displays analytics using Plotly with a transparent background."""
+    """Displays a time series chart of the number of tasks created over time."""
     if not tasks:
         st.write("No tasks available for analytics.")
         return
-
-    # Pie Chart: Task Distribution by Status
-    st.subheader("Task Distribution by Status")
-    task_status_counts = {task["status"]: 0 for task in tasks}
-    for task in tasks:
-        task_status_counts[task["status"]] += 1
-
-    pie_chart = px.pie(
-        names=list(task_status_counts.keys()),
-        values=list(task_status_counts.values()),
-        title="Tasks by Status",
-        hole=0.4,  # Donut chart
-    )
-    pie_chart = apply_transparent_layout(pie_chart)
-    st.plotly_chart(pie_chart, use_container_width=True)
 
     # Time Series: Number of Tasks Created Over Time
     st.subheader("Tasks Created Over Time")
