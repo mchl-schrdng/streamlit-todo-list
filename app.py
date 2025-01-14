@@ -56,7 +56,7 @@ with st.sidebar.form("task_form"):
             st.session_state.importance,
         )
         st.success("Task added successfully!")  # Message directly below the form
-        st.experimental_rerun()  # Trigger refresh
+        st.rerun()  # Trigger refresh
 
 # Main Page: Tasks Grouped by Status
 tasks = get_tasks()
@@ -140,7 +140,7 @@ if tasks:
                 task_id, title, description, urgency, importance
             )  # Update other details
             st.success(f"Task {task_id} updated successfully!")  # Message directly below the form
-            st.experimental_rerun()  # Trigger refresh
+            st.rerun()  # Trigger refresh
 else:
     st.sidebar.write("No tasks available to update.")
 
@@ -156,7 +156,7 @@ if tasks:
     if st.sidebar.button("Delete Task"):
         delete_task(task_id_to_delete)
         st.sidebar.success(f"Task {task_id_to_delete} deleted successfully!")  # Message directly below delete section
-        st.experimental_rerun()  # Trigger refresh
+        st.rerun()  # Trigger refresh
 else:
     st.sidebar.write("No tasks available to delete.")
 
@@ -165,4 +165,4 @@ st.sidebar.markdown("---")
 if st.sidebar.button("Reset Database (End)"):
     reset_database()
     st.sidebar.success("Database has been reset!")  # Message directly below reset option
-    st.experimental_rerun()
+    st.rerun()
