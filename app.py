@@ -95,8 +95,9 @@ if tasks:
             )
         else:
             st.write(f"No {status.lower()} tasks.")
-
 else:
+    # Initialize an empty DataFrame to avoid errors
+    df_tasks = pd.DataFrame(columns=["Task ID", "Title", "Description", "Urgency", "Importance", "Status", "Created At", "Updated At"])
     st.write("No tasks found.")
 
 # Sidebar: Update Existing Task
@@ -140,15 +141,18 @@ else:
 # Sidebar: Delete Task
 st.sidebar.markdown("---")
 st.sidebar.subheader("Delete a Task")
-task_id_to_delete = st.sidebar.selectbox(
-    "Select Task ID to Delete",
-    df_tasks["Task ID"].values,
-    format_func=lambda x: f"Task {x}: {df_tasks[df_tasks['Task ID'] == x]['Title'].values[0]}",
-)
-if st.sidebar.button("Delete Task"):
-    delete_task(task_id_to_delete)
-    st.success(f"Task {task_id_to_delete} deleted successfully!")
-    st.session_state.refresh = not st.session_state.get("refresh", False)  # Trigger refresh
+if not df_tasks.empty:
+    task_id_to_delete = st.sidebar.selectbox(
+        "Select Task ID to Delete",
+        df_tasks["Task ID"].values,
+        format_func=lambda x: f"Task {x}: {df_tasks[df_tasks['Task ID'] == x]['Title'].values[0]}",
+    )
+    if st.sidebar.button("Delete Task"):
+        delete_task(task_id_to_delete)
+        st.success(f"Task {task_id_to_delete} deleted successfully!")
+        st.session_state.refresh = not st.session_state.get("refresh", False)  # Trigger refresh
+else:
+    st.sidebar.write("No tasks available to delete.")
 
 # Move Reset Database Option to the End of Sidebar
 st.sidebar.markdown("---")
