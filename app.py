@@ -15,17 +15,7 @@ st.set_page_config(
 )
 
 # Apply global styling
-st.markdown(
-    """
-    <style>
-    [data-testid="stAppViewContainer"] {
-        background: linear-gradient(to right, #6a11cb, #2575fc);
-        color: white;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+load_css("static/styles.css")
 
 # Render Sidebar
 render_sidebar()
