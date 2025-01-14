@@ -95,7 +95,7 @@ else:
     st.write("No tasks found.")
 
 # Sidebar: Update Existing Task
-st.sidebar.markdown("---")
+st.sidebar.subheader('', divider='rainbow')
 st.sidebar.subheader("Update Existing Task")
 
 if tasks:
@@ -141,7 +141,7 @@ else:
     st.sidebar.write("No tasks available to update.")
 
 # Sidebar: Delete Task
-st.sidebar.markdown("---")
+st.sidebar.subheader('', divider='rainbow')
 st.sidebar.subheader("Delete a Task")
 if tasks:
     task_id_to_delete = st.sidebar.selectbox(
