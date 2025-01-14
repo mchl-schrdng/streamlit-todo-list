@@ -15,6 +15,19 @@ st.set_page_config(
     page_icon="🤖"
 )
 
+# Apply global styling
+st.markdown(
+    """
+    <style>
+    [data-testid="stAppViewContainer"] {
+        background: linear-gradient(to right, #6a11cb, #2575fc);
+        color: white;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 # Sidebar Navigation
 render_sidebar()
 menu = st.sidebar.radio("Navigation", options=["Task Manager", "Analytics"])
