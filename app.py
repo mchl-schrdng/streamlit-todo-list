@@ -49,5 +49,6 @@ elif st.session_state.menu == "Analytics":
     tasks = get_tasks()
     display_analytics(tasks)
 
+st.sidebar.markdown("---")
 # Render the sidebar for other actions (add/update/delete tasks)
 render_sidebar()
