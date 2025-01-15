@@ -16,7 +16,6 @@ st.set_page_config(
     page_icon="🤖"
 )
 
-# List of gradients
 gradients = [
     "linear-gradient(to right, #6a11cb, #2575fc)",
     "linear-gradient(to right, #ff7e5f, #feb47b)",
@@ -25,10 +24,8 @@ gradients = [
     "linear-gradient(to right, #6441a5, #2a0845)",
 ]
 
-# Select a single random gradient
 selected_gradient = random.choice(gradients)
 
-# Apply the gradient as the background
 st.markdown(
     f"""
     <style>
@@ -41,7 +38,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Navigation logic
 if "menu" not in st.session_state:
     st.session_state.menu = "Task Manager"
 
@@ -53,7 +49,6 @@ if col1.button("Task Manager"):
 if col2.button("Analytics"):
     st.session_state.menu = "Analytics"
 
-# Task Manager or Analytics display
 if st.session_state.menu == "Task Manager":
     tasks = get_tasks()
     display_tasks(tasks)
@@ -61,6 +56,5 @@ elif st.session_state.menu == "Analytics":
     tasks = get_tasks()
     display_analytics(tasks)
 
-# Render sidebar
 st.sidebar.markdown("---")
 render_sidebar()
