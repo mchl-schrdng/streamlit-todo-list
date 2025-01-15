@@ -17,7 +17,7 @@ def render_sidebar():
             st.sidebar.success("Task added successfully!")
             st.rerun()
 
-        st.divider()
+    st.divider()
 
     # Update Existing Task
     tasks = get_tasks()
