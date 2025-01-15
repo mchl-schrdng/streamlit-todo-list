@@ -10,7 +10,8 @@ def initialize_db():
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS tasks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
+            task TEXT NOT NULL,
+            tag TEXT NOT NULL,
             urgency INTEGER,
             importance INTEGER,
             status TEXT DEFAULT 'to do',
@@ -26,7 +27,7 @@ def add_task(title, urgency, importance):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT INTO tasks (title, urgency, importance, status)
+        INSERT INTO tasks (task, tag, urgency, importance, status)
         VALUES (?, ?, ?, 'to do')
     """, (title, urgency, importance))
     conn.commit()
@@ -37,7 +38,7 @@ def get_tasks():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT id, title, urgency, importance, status, created_at, updated_at
+        SELECT id, task, tag, urgency, importance, status, created_at, updated_at
         FROM tasks
     """)
     rows = cursor.fetchall()
@@ -45,12 +46,13 @@ def get_tasks():
     return [
         {
             "id": row[0],
-            "title": row[1],
-            "urgency": row[2],
-            "importance": row[3],
-            "status": row[4],
-            "created_at": row[5],
-            "updated_at": row[6],
+            "task": row row[1],
+            "tag": row[2],
+            "urgency": row[3],
+            "importance": row[4],
+            "status": row[5],
+            "created_at": row[6],
+            "updated_at": row[7],
         }
         for row in rows
     ]
@@ -73,7 +75,7 @@ def update_task_details(task_id, title, urgency, importance):
     cursor = conn.cursor()
     cursor.execute("""
         UPDATE tasks
-        SET title = ?, urgency = ?, importance = ?, updated_at = CURRENT_TIMESTAMP
+        SET task = ?, tag = ?, urgency = ?, importance = ?, updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
     """, (title, urgency, importance, task_id))
     conn.commit()
