@@ -23,7 +23,7 @@ def initialize_db():
     conn.close()
 
 # Add a new task
-def add_task(task, tag, urgency, importance):
+def add_task(task, tag, urgency, importance, status):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute("""
