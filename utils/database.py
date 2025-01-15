@@ -46,7 +46,7 @@ def get_tasks():
     return [
         {
             "id": row[0],
-            "task": row row[1],
+            "task": row [1],
             "tag": row[2],
             "urgency": row[3],
             "importance": row[4],
