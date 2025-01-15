@@ -107,11 +107,12 @@ def display_analytics(tasks):
         title="Tasks Created Over Time",
     )
     time_series_chart = apply_transparent_layout(time_series_chart)
+    # Force date format to show only the date
+    time_series_chart.update_xaxes(tickformat="%b %d, %Y")
 
     # -------------------------------------------------------------------------
     # 3) Line Chart: Average Urgency and Importance Over Time
     # -------------------------------------------------------------------------
-    # Since both are on a 1–5 scale, plotting them on a shared axis is okay
     combined_x = list(urgency_dates) + list(importance_dates)
     combined_y = list(urgency_values) + list(importance_values)
     combined_color = (["Urgency"] * len(urgency_dates)
@@ -125,6 +126,7 @@ def display_analytics(tasks):
         title="Urgency and Importance Trends Over Time",
     )
     trend_chart = apply_transparent_layout(trend_chart)
+    trend_chart.update_xaxes(tickformat="%b %d, %Y")
 
     # -------------------------------------------------------------------------
     # 4) Stacked Bar: Task Distribution by Status Over Time
@@ -139,12 +141,12 @@ def display_analytics(tasks):
         title="Task Distribution by Status Over Time",
     )
     status_chart = apply_transparent_layout(status_chart)
+    status_chart.update_xaxes(tickformat="%b %d, %Y")
 
     # -------------------------------------------------------------------------
     # Display the charts in a 2x2 layout
     # -------------------------------------------------------------------------
     col1, col2 = st.columns(2)
-
     with col1:
         st.plotly_chart(pie_chart, use_container_width=True)
         st.plotly_chart(trend_chart, use_container_width=True)
