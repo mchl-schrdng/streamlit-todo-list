@@ -3,7 +3,7 @@ from datetime import datetime
 
 DB_NAME = "database.db"
 
-# Initialize the database (without description)
+# Initialize the database with a new column 'tag'
 def initialize_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
@@ -11,6 +11,7 @@ def initialize_db():
         CREATE TABLE IF NOT EXISTS tasks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
+            tag TEXT,  -- New column for a one-word tag
             urgency INTEGER,
             importance INTEGER,
             status TEXT DEFAULT 'to do',
@@ -22,13 +23,13 @@ def initialize_db():
     conn.close()
 
 # Add a new task
-def add_task(title, urgency, importance):
+def add_task(title, tag, urgency, importance):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT INTO tasks (title, urgency, importance, status)
-        VALUES (?, ?, ?, 'to do')
-    """, (title, urgency, importance))
+        INSERT INTO tasks (title, tag, urgency, importance, status)
+        VALUES (?, ?, ?, ?, 'to do')
+    """, (title, tag, urgency, importance))
     conn.commit()
     conn.close()
 
@@ -37,7 +38,7 @@ def get_tasks():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT id, title, urgency, importance, status, created_at, updated_at
+        SELECT id, title, tag, urgency, importance, status, created_at, updated_at
         FROM tasks
     """)
     rows = cursor.fetchall()
@@ -46,11 +47,12 @@ def get_tasks():
         {
             "id": row[0],
             "title": row[1],
-            "urgency": row[2],
-            "importance": row[3],
-            "status": row[4],
-            "created_at": row[5],
-            "updated_at": row[6],
+            "tag": row[2],
+            "urgency": row[3],
+            "importance": row[4],
+            "status": row[5],
+            "created_at": row[6],
+            "updated_at": row[7],
         }
         for row in rows
     ]
@@ -67,15 +69,15 @@ def update_task_status(task_id, status):
     conn.commit()
     conn.close()
 
-# Update task details (no description)
-def update_task_details(task_id, title, urgency, importance):
+# Update task details, now including tag
+def update_task_details(task_id, title, tag, urgency, importance):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute("""
         UPDATE tasks
-        SET title = ?, urgency = ?, importance = ?, updated_at = CURRENT_TIMESTAMP
+        SET title = ?, tag = ?, urgency = ?, importance = ?, updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
-    """, (title, urgency, importance, task_id))
+    """, (title, tag, urgency, importance, task_id))
     conn.commit()
     conn.close()
 
