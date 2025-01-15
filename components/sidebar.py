@@ -17,7 +17,7 @@ def render_sidebar():
             st.sidebar.success("Task added successfully!")
             st.rerun()
 
-    st.sidebar.markdown("---")
+    st.divider()
 
     # Update Existing Task
     tasks = get_tasks()
@@ -48,7 +48,7 @@ def render_sidebar():
                 st.sidebar.success(f"Task {task_id} updated successfully!")
                 st.rerun()
 
-        st.sidebar.markdown("---")
+        st.divider()
 
         # Delete Task
         st.sidebar.subheader("Delete a Task")
@@ -65,7 +65,7 @@ def render_sidebar():
     else:
         st.sidebar.write("No tasks available to manage.")
     
-    st.sidebar.markdown("---")
+    st.divider()
 
     # Reset Database
     if st.sidebar.button("Reset Database"):
