@@ -10,8 +10,7 @@ def initialize_db():
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS tasks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            task TEXT NOT NULL,
-            tag TEXT NOT NULL,
+            title TEXT NOT NULL,
             urgency INTEGER,
             importance INTEGER,
             status TEXT DEFAULT 'to do',
@@ -23,13 +22,13 @@ def initialize_db():
     conn.close()
 
 # Add a new task
-def add_task(task, tag, urgency, importance):
+def add_task(title, urgency, importance):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT INTO tasks (task, tag, urgency, importance, status)
-        VALUES (?, ?, ?, ?, 'to do')
-    """, (task, tag, urgency, importance))
+        INSERT INTO tasks (title, urgency, importance, status)
+        VALUES (?, ?, ?, 'to do')
+    """, (title, urgency, importance))
     conn.commit()
     conn.close()
 
@@ -38,7 +37,7 @@ def get_tasks():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT id, task, tag, urgency, importance, status, created_at, updated_at
+        SELECT id, title, urgency, importance, status, created_at, updated_at
         FROM tasks
     """)
     rows = cursor.fetchall()
@@ -46,13 +45,12 @@ def get_tasks():
     return [
         {
             "id": row[0],
-            "task": row [1],
-            "tag": row[2],
-            "urgency": row[3],
-            "importance": row[4],
-            "status": row[5],
-            "created_at": row[6],
-            "updated_at": row[7],
+            "title": row[1],
+            "urgency": row[2],
+            "importance": row[3],
+            "status": row[4],
+            "created_at": row[5],
+            "updated_at": row[6],
         }
         for row in rows
     ]
@@ -70,14 +68,14 @@ def update_task_status(task_id, status):
     conn.close()
 
 # Update task details (no description)
-def update_task_details(task_id, task, tag, urgency, importance):
+def update_task_details(task_id, title, urgency, importance):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     cursor.execute("""
         UPDATE tasks
-        SET task = ?, tag = ?, urgency = ?, importance = ?, updated_at = CURRENT_TIMESTAMP
+        SET title = ?, urgency = ?, importance = ?, updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
-    """, (task, tag, urgency, importance, task_id))
+    """, (title, urgency, importance, task_id))
     conn.commit()
     conn.close()
 

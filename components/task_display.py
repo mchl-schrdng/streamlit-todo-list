@@ -37,8 +37,7 @@ def display_tasks(tasks):
                 [
                     {
                         "Task ID": t["id"],
-                        "Task": t["task"],
-                        "Tag": t["tag"],
+                        "Title": t["title"],
                         "Urgency": t["Urgency Label"],
                         "Importance": t["Importance Label"],
                         "Eisenhower Ratio": t["Eisenhower Ratio"],
