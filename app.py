@@ -28,15 +28,26 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Sidebar Navigation
-menu = st.sidebar.radio("Navigation", options=["Task Manager", "Analytics"])
-st.sidebar.markdown("---")
+# Initialize a default page in session state if not set
+if "menu" not in st.session_state:
+    st.session_state.menu = "Task Manager"
+
+# Render the sidebar for other actions (add/update/delete tasks)
 render_sidebar()
 
-# Main Content
-if menu == "Task Manager":
+st.sidebar.write("### Navigation")
+col1, col2 = st.sidebar.columns(2)
+
+# Two separate buttons to switch pages
+if col1.button("Task Manager"):
+    st.session_state.menu = "Task Manager"
+if col2.button("Analytics"):
+    st.session_state.menu = "Analytics"
+
+# Main Content based on current 'menu' in session state
+if st.session_state.menu == "Task Manager":
     tasks = get_tasks()
     display_tasks(tasks)
-elif menu == "Analytics":
+elif st.session_state.menu == "Analytics":
     tasks = get_tasks()
     display_analytics(tasks)
