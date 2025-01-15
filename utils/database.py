@@ -28,7 +28,7 @@ def add_task(task, tag, urgency, importance):
     cursor = conn.cursor()
     cursor.execute("""
         INSERT INTO tasks (task, tag, urgency, importance, status)
-        VALUES (?, ?, ?, 'to do')
+        VALUES (?, ?, ?, ?, 'to do')
     """, (task, tag, urgency, importance))
     conn.commit()
     conn.close()
