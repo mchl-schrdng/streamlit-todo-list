@@ -15,8 +15,8 @@ def initialize_db():
             urgency INTEGER,
             importance INTEGER,
             status TEXT DEFAULT 'to do',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            created_at TEXT DEFAULT (date('now')),
+            updated_at TEXT DEFAULT (date('now'))
         )
     """)
     conn.commit()
@@ -63,7 +63,7 @@ def update_task_status(task_id, status):
     cursor = conn.cursor()
     cursor.execute("""
         UPDATE tasks
-        SET status = ?, updated_at = CURRENT_TIMESTAMP
+        SET status = ?, updated_at = date('now')
         WHERE id = ?
     """, (status, task_id))
     conn.commit()
@@ -75,7 +75,7 @@ def update_task_details(task_id, title, tag, urgency, importance):
     cursor = conn.cursor()
     cursor.execute("""
         UPDATE tasks
-        SET title = ?, tag = ?, urgency = ?, importance = ?, updated_at = CURRENT_TIMESTAMP
+        SET title = ?, tag = ?, urgency = ?, importance = ?, updated_at = date('now')
         WHERE id = ?
     """, (title, tag, urgency, importance, task_id))
     conn.commit()
