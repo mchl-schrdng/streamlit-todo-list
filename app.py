@@ -30,7 +30,6 @@ st.markdown(
 
 # Sidebar Navigation
 menu = st.sidebar.radio("Navigation", options=["Task Manager", "Analytics"])
-st.divider()
 render_sidebar()
 
 # Main Content
