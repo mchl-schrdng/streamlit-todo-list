@@ -1,6 +1,8 @@
 import streamlit as st
 from utils.database import add_task, get_tasks, update_task_status, update_task_details, delete_task, reset_database
 
+st.sidebar.markdown("---")
+
 def render_sidebar():
     """Renders the sidebar with task management options."""
     # Add a New Task
