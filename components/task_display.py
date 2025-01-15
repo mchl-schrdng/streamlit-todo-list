@@ -1,7 +1,6 @@
 import streamlit as st
 
 def map_scale(value):
-    """Maps scale value to descriptive label."""
     return {
         1: "Very Low",
         2: "Low",
@@ -11,25 +10,21 @@ def map_scale(value):
     }.get(value, "Unknown")
 
 def display_tasks(tasks):
-    """Displays tasks grouped by status."""
     if not tasks:
         st.write("No tasks found.")
         return
 
-    # Add labels and calculate Eisenhower ratio
     for task in tasks:
         task["Urgency Label"] = map_scale(task["urgency"])
         task["Importance Label"] = map_scale(task["importance"])
         task["Eisenhower Ratio"] = task["importance"] * task["urgency"]
 
-    # Group tasks by status
     task_status_mapping = {
         "To Do": [t for t in tasks if t["status"] == "to do"],
         "Doing": [t for t in tasks if t["status"] == "doing"],
         "Done": [t for t in tasks if t["status"] == "done"],
     }
 
-    # Display tasks for each status
     for status, data in task_status_mapping.items():
         st.subheader(status)
         if data:
