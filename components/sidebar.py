@@ -1,53 +1,74 @@
 import streamlit as st
+from utils.database import add_task, get_tasks, update_task_status, update_task_details, delete_task, reset_database
 
-def map_scale(value):
-    """Maps scale value to descriptive label."""
-    return {
-        1: "Very Low",
-        2: "Low",
-        3: "Moderate",
-        4: "High",
-        5: "Very High",
-    }.get(value, "Unknown")
+def render_sidebar():
+    """Renders the sidebar with task management options."""
+    # Add a New Task
+    st.sidebar.subheader("Add a New Task")
+    with st.sidebar.form("task_form"):
+        title = st.text_input("Task Title", placeholder="Enter your task title")
+        tag = st.text_input("Tag", placeholder="One word (e.g., 'work', 'home')")  # <-- New field
+        urgency = st.slider("Urgency", 1, 5, 3)
+        importance = st.slider("Importance", 1, 5, 3)
+        submitted = st.form_submit_button("Add Task")
+        if submitted and title:
+            # Pass the new 'tag' argument to add_task
+            add_task(title, tag, urgency, importance)
+            st.sidebar.success("Task added successfully!")
+            st.rerun()
 
-def display_tasks(tasks):
-    """Displays tasks grouped by status."""
-    if not tasks:
-        st.write("No tasks found.")
-        return
+    st.sidebar.markdown("---")
 
-    # Add labels and calculate Eisenhower ratio
-    for task in tasks:
-        task["Urgency Label"] = map_scale(task["urgency"])
-        task["Importance Label"] = map_scale(task["importance"])
-        task["Eisenhower Ratio"] = task["importance"] * task["urgency"]
-
-    # Group tasks by status
-    task_status_mapping = {
-        "To Do": [t for t in tasks if t["status"] == "to do"],
-        "Doing": [t for t in tasks if t["status"] == "doing"],
-        "Done": [t for t in tasks if t["status"] == "done"],
-    }
-
-    # Display tasks for each status
-    for status, data in task_status_mapping.items():
-        st.subheader(status)
-        if data:
-            st.dataframe(
-                [
-                    {
-                        "Task ID": t["id"],
-                        "Title": t["title"],
-                        "Tag": t["tag"] if t.get("tag") else "",  # <-- Display tag
-                        "Urgency": t["Urgency Label"],
-                        "Importance": t["Importance Label"],
-                        "Eisenhower Ratio": t["Eisenhower Ratio"],
-                        "Created At": t["created_at"],
-                        "Updated At": t["updated_at"],
-                    }
-                    for t in sorted(data, key=lambda x: x["Eisenhower Ratio"], reverse=True)
-                ],
-                use_container_width=True,
+    # Update Existing Task
+    tasks = get_tasks()
+    if tasks:
+        st.sidebar.subheader("Update Existing Task")
+        with st.sidebar.form("update_task_form"):
+            task_id = st.selectbox(
+                "Select Task ID to Update",
+                [t["id"] for t in tasks],
+                format_func=lambda x: f"Task {x}: {next(t['title'] for t in tasks if t['id'] == x)}",
             )
-        else:
-            st.write(f"No {status.lower()} tasks.")
+            selected_task = next(t for t in tasks if t["id"] == task_id)
+            status = st.radio(
+                "Status",
+                options=["to do", "doing", "done"],
+                index=["to do", "doing", "done"].index(selected_task["status"]),
+                horizontal=True,
+            )
+            title = st.text_input("Title", value=selected_task["title"])
+            tag = st.text_input("Tag", value=selected_task["tag"] if selected_task.get("tag") else "")
+            urgency = st.slider("Urgency", 1, 5, selected_task["urgency"])
+            importance = st.slider("Importance", 1, 5, selected_task["importance"])
+            update_submitted = st.form_submit_button("Update Task")
+            if update_submitted:
+                update_task_status(task_id, status)
+                # Pass the new 'tag' argument to update_task_details
+                update_task_details(task_id, title, tag, urgency, importance)
+                st.sidebar.success(f"Task {task_id} updated successfully!")
+                st.rerun()
+
+        st.sidebar.markdown("---")
+
+        # Delete Task
+        st.sidebar.subheader("Delete a Task")
+        task_id_to_delete = st.sidebar.selectbox(
+            "Select Task ID to Delete",
+            [t["id"] for t in tasks],
+            format_func=lambda x: f"Task {x}: {next(t['title'] for t in tasks if t['id'] == x)}",
+        )
+        if st.sidebar.button("Delete Task"):
+            delete_task(task_id_to_delete)
+            st.sidebar.success(f"Task {task_id_to_delete} deleted successfully!")
+            st.rerun()
+
+    else:
+        st.sidebar.write("No tasks available to manage.")
+    
+    st.sidebar.markdown("---")
+
+    # Reset Database
+    if st.sidebar.button("Reset Database"):
+        reset_database()
+        st.sidebar.success("Database has been reset!")
+        st.rerun()
