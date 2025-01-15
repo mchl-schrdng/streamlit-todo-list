@@ -29,8 +29,8 @@ st.markdown(
 )
 
 # Sidebar Navigation
-render_sidebar()
 menu = st.sidebar.radio("Navigation", options=["Task Manager", "Analytics"])
+render_sidebar()
 
 # Main Content
 if menu == "Task Manager":
