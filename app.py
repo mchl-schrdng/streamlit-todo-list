@@ -13,17 +13,29 @@ st.set_page_config(
     page_icon="🤖"
 )
 
-st.markdown(
-    """
-    <style>
-    [data-testid="stAppViewContainer"] {
-        background: linear-gradient(to right, #6a11cb, #2575fc);
-        color: white;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+gradients = [
+    "linear-gradient(to right, #6a11cb, #2575fc)",
+    "linear-gradient(to right, #ff7e5f, #feb47b)",
+    "linear-gradient(to right, #00c6ff, #0072ff)",
+    "linear-gradient(to right, #43cea2, #185a9d)",
+    "linear-gradient(to right, #6441a5, #2a0845)",
+]
+
+selected_gradients = random.sample(gradients, 10)
+
+for gradient in selected_gradients:
+    st.markdown(
+        f"""
+        <style>
+        [data-testid="stAppViewContainer"] {{
+            background: {gradient};
+            color: white;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.write(f"Using Gradient: {gradient}")
 
 if "menu" not in st.session_state:
     st.session_state.menu = "Task Manager"
