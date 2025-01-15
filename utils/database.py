@@ -3,7 +3,6 @@ from datetime import datetime
 
 DB_NAME = "database.db"
 
-# Initialize the database with a new column 'tag'
 def initialize_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
@@ -11,7 +10,7 @@ def initialize_db():
         CREATE TABLE IF NOT EXISTS tasks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
-            tag TEXT,  -- New column for a one-word tag
+            tag TEXT,
             urgency INTEGER,
             importance INTEGER,
             status TEXT DEFAULT 'to do',
@@ -22,7 +21,6 @@ def initialize_db():
     conn.commit()
     conn.close()
 
-# Add a new task
 def add_task(title, tag, urgency, importance):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
@@ -33,7 +31,6 @@ def add_task(title, tag, urgency, importance):
     conn.commit()
     conn.close()
 
-# Get all tasks
 def get_tasks():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
@@ -57,7 +54,6 @@ def get_tasks():
         for row in rows
     ]
 
-# Update a task's status
 def update_task_status(task_id, status):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
@@ -69,7 +65,6 @@ def update_task_status(task_id, status):
     conn.commit()
     conn.close()
 
-# Update task details, now including tag
 def update_task_details(task_id, title, tag, urgency, importance):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
@@ -81,7 +76,6 @@ def update_task_details(task_id, title, tag, urgency, importance):
     conn.commit()
     conn.close()
 
-# Delete a task from the database
 def delete_task(task_id):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
@@ -92,7 +86,6 @@ def delete_task(task_id):
     conn.commit()
     conn.close()
 
-# Reset the database
 def reset_database():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
