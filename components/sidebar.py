@@ -6,7 +6,7 @@ def render_sidebar():
     # Add a New Task
     st.sidebar.subheader("Add a New Task")
     with st.sidebar.form("task_form"):
-        title = st.text_input("Task", placeholder="Enter your task")
+        task = st.text_input("Task", placeholder="Enter your task")
         tag = st.text_input("Tag", placeholder="Enter a tag (one word)")
         urgency = st.slider("Urgency", 1, 5, 3)
         importance = st.slider("Importance", 1, 5, 3)
