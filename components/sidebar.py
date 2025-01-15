@@ -13,7 +13,7 @@ def render_sidebar():
         if submitted and title:
             add_task(title, urgency, importance)
             st.sidebar.success("Task added successfully!")
-            st.experimental_rerun()
+            st.rerun()
 
     st.sidebar.markdown("---")
 
@@ -42,7 +42,7 @@ def render_sidebar():
                 update_task_status(task_id, status)
                 update_task_details(task_id, title, urgency, importance)
                 st.sidebar.success(f"Task {task_id} updated successfully!")
-                st.experimental_rerun()
+                st.rerun()
 
         st.sidebar.markdown("---")
 
@@ -56,7 +56,7 @@ def render_sidebar():
         if st.sidebar.button("Delete Task"):
             delete_task(task_id_to_delete)
             st.sidebar.success(f"Task {task_id_to_delete} deleted successfully!")
-            st.experimental_rerun()
+            st.rerun()
 
     else:
         st.sidebar.write("No tasks available to manage.")
@@ -67,4 +67,4 @@ def render_sidebar():
     if st.sidebar.button("Reset Database"):
         reset_database()
         st.sidebar.success("Database has been reset!")
-        st.experimental_rerun()
+        st.rerun()
