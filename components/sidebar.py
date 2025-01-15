@@ -2,25 +2,21 @@ import streamlit as st
 from utils.database import add_task, get_tasks, update_task_status, update_task_details, delete_task, reset_database
 
 def render_sidebar():
-    """Renders the sidebar with task management options."""
-    # Add a New Task
     st.sidebar.subheader("Add a New Task")
     with st.sidebar.form("task_form"):
         title = st.text_input("Task Title", placeholder="Enter your task title")
-        tag = st.text_input("Tag", placeholder="One word (e.g., 'work', 'home')")  # <-- New field
+        tag = st.text_input("Tag", placeholder="One word (e.g., 'work', 'home')")
         urgency = st.slider("Urgency", 1, 5, 3)
         importance = st.slider("Importance", 1, 5, 3)
         submitted = st.form_submit_button("Add Task")
         if submitted and title:
-            # Pass the new 'tag' argument to add_task
             add_task(title, tag, urgency, importance)
             st.sidebar.success("Task added successfully!")
             st.rerun()
 
     st.sidebar.markdown("---")
-
-    # Update Existing Task
     tasks = get_tasks()
+
     if tasks:
         st.sidebar.subheader("Update Existing Task")
         with st.sidebar.form("update_task_form"):
@@ -37,20 +33,18 @@ def render_sidebar():
                 horizontal=True,
             )
             title = st.text_input("Title", value=selected_task["title"])
-            tag = st.text_input("Tag", value=selected_task["tag"] if selected_task.get("tag") else "")
+            tag = st.text_input("Tag", value=selected_task.get("tag", ""))
             urgency = st.slider("Urgency", 1, 5, selected_task["urgency"])
             importance = st.slider("Importance", 1, 5, selected_task["importance"])
             update_submitted = st.form_submit_button("Update Task")
             if update_submitted:
                 update_task_status(task_id, status)
-                # Pass the new 'tag' argument to update_task_details
                 update_task_details(task_id, title, tag, urgency, importance)
                 st.sidebar.success(f"Task {task_id} updated successfully!")
                 st.rerun()
 
         st.sidebar.markdown("---")
 
-        # Delete Task
         st.sidebar.subheader("Delete a Task")
         task_id_to_delete = st.sidebar.selectbox(
             "Select Task ID to Delete",
@@ -67,7 +61,6 @@ def render_sidebar():
     
     st.sidebar.markdown("---")
 
-    # Reset Database
     if st.sidebar.button("Reset Database"):
         reset_database()
         st.sidebar.success("Database has been reset!")
