@@ -32,9 +32,6 @@ st.markdown(
 if "menu" not in st.session_state:
     st.session_state.menu = "Task Manager"
 
-# Render the sidebar for other actions (add/update/delete tasks)
-render_sidebar()
-
 st.sidebar.write("### Navigation")
 col1, col2 = st.sidebar.columns(2)
 
@@ -51,3 +48,6 @@ if st.session_state.menu == "Task Manager":
 elif st.session_state.menu == "Analytics":
     tasks = get_tasks()
     display_analytics(tasks)
+
+# Render the sidebar for other actions (add/update/delete tasks)
+render_sidebar()
