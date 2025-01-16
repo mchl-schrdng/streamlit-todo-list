@@ -20,8 +20,8 @@ gradients = [
  #   "linear-gradient(to right, #6a11cb, #2575fc)",
  #   "linear-gradient(to right, #ff7e5f, #feb47b)",
  #   "linear-gradient(to right, #00c6ff, #0072ff)",
- #   "linear-gradient(to right, #43cea2, #185a9d)",
-    "linear-gradient(to right, #6441a5, #2a0845)",
+    "linear-gradient(to right, #43cea2, #185a9d)",
+ #   "linear-gradient(to right, #6441a5, #2a0845)",
 ]
 
 selected_gradient = random.choice(gradients)
