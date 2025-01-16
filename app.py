@@ -1,6 +1,6 @@
-import random
 import streamlit as st
 from utils.database import initialize_db, get_tasks
+from utils.theme_manager import apply_theme
 from components.sidebar import render_sidebar
 from components.task_display import display_tasks
 from components.analytics import display_analytics
@@ -16,31 +16,8 @@ st.set_page_config(
     page_icon="🤖"
 )
 
-# Define gradients for light and dark modes
-gradients = {
-    "Light Mode": "linear-gradient(to right, #ff7e5f, #feb47b)",
-    "Dark Mode": "linear-gradient(to right, #6441a5, #2a0845)"
-}
-
-# Add a switch for dark/light mode in the sidebar
-st.sidebar.write("### Appearance")
-is_dark_mode = st.sidebar.toggle("Dark Mode", value=False)
-
-# Set the selected gradient based on the switch state
-selected_gradient = gradients["Dark Mode"] if is_dark_mode else gradients["Light Mode"]
-
-# Apply the selected gradient as the background
-st.markdown(
-    f"""
-    <style>
-    [data-testid="stAppViewContainer"] {{
-        background: {selected_gradient};
-        color: white;
-    }}
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+# Apply the theme
+apply_theme()
 
 # Initialize session state menu
 if "menu" not in st.session_state:
