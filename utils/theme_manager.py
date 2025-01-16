@@ -1,13 +1,10 @@
 import streamlit as st
 
-def apply_theme():
+def apply_theme(is_dark_mode):
     gradients = {
         "Light Mode": "linear-gradient(to right, #ff7e5f, #feb47b)",
         "Dark Mode": "linear-gradient(to right, #6441a5, #2a0845)"
     }
-
-    st.sidebar.write("### Appearance")
-    is_dark_mode = st.sidebar.toggle("Dark Mode", value=False)
 
     selected_gradient = gradients["Dark Mode"] if is_dark_mode else gradients["Light Mode"]
 
