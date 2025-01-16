@@ -22,12 +22,12 @@ gradients = {
     "Dark Mode": "linear-gradient(to right, #6441a5, #2a0845)"
 }
 
-# Add a dark/light mode toggle in the sidebar
+# Add a switch for dark/light mode in the sidebar
 st.sidebar.write("### Appearance")
-mode = st.sidebar.switch("Choose Mode", options=["Light Mode", "Dark Mode"], horizontal=True)
+is_dark_mode = st.sidebar.checkbox("Dark Mode", value=False)
 
-# Set the selected gradient based on the mode
-selected_gradient = gradients[mode]
+# Set the selected gradient based on the switch state
+selected_gradient = gradients["Dark Mode"] if is_dark_mode else gradients["Light Mode"]
 
 # Apply the selected gradient as the background
 st.markdown(
