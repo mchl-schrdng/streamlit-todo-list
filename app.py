@@ -24,7 +24,7 @@ gradients = {
 
 # Add a dark/light mode toggle in the sidebar
 st.sidebar.write("### Appearance")
-mode = st.sidebar.radio("Choose Mode", options=["Light Mode", "Dark Mode"], horizontal=True)
+mode = st.sidebar.switch("Choose Mode", options=["Light Mode", "Dark Mode"], horizontal=True)
 
 # Set the selected gradient based on the mode
 selected_gradient = gradients[mode]
