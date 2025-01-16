@@ -1,7 +1,18 @@
 import streamlit as st
 from utils.database import add_task, get_tasks, update_task_status, update_task_details, delete_task, reset_database
+from utils.theme_manager import apply_theme
 
 def render_sidebar():
+    st.sidebar.write("### Navigation")
+    col1, col2 = st.sidebar.columns(2)
+
+    if col1.button("Task Manager"):
+        st.session_state.menu = "Task Manager"
+    if col2.button("Analytics"):
+        st.session_state.menu = "Analytics"
+
+    st.sidebar.markdown("---")
+
     st.sidebar.subheader("Add a New Task")
     with st.sidebar.form("task_form"):
         title = st.text_input("Task Title", placeholder="Enter your task title")
@@ -55,13 +66,19 @@ def render_sidebar():
             delete_task(task_id_to_delete)
             st.sidebar.success(f"Task {task_id_to_delete} deleted successfully!")
             st.rerun()
-
     else:
         st.sidebar.write("No tasks available to manage.")
-    
+
     st.sidebar.markdown("---")
 
     if st.sidebar.button("Reset Database"):
         reset_database()
         st.sidebar.success("Database has been reset!")
         st.rerun()
+
+    st.sidebar.markdown("---")
+
+    st.sidebar.subheader("Appearance")
+    is_dark_mode = st.sidebar.toggle("Enable Dark Mode", value=False)
+
+    apply_theme(is_dark_mode)
