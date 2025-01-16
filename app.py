@@ -16,13 +16,20 @@ st.set_page_config(
     page_icon="🤖"
 )
 
-gradients = [
-    "linear-gradient(to right, #ff7e5f, #feb47b)",
-    "linear-gradient(to right, #6441a5, #2a0845)",
-]
+# Define gradients for light and dark modes
+gradients = {
+    "Light Mode": "linear-gradient(to right, #ff7e5f, #feb47b)",
+    "Dark Mode": "linear-gradient(to right, #6441a5, #2a0845)"
+}
 
-selected_gradient = random.choice(gradients)
+# Add a dark/light mode toggle in the sidebar
+st.sidebar.write("### Appearance")
+mode = st.sidebar.radio("Choose Mode", options=["Light Mode", "Dark Mode"], horizontal=True)
 
+# Set the selected gradient based on the mode
+selected_gradient = gradients[mode]
+
+# Apply the selected gradient as the background
 st.markdown(
     f"""
     <style>
@@ -35,9 +42,11 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# Initialize session state menu
 if "menu" not in st.session_state:
     st.session_state.menu = "Task Manager"
 
+# Sidebar navigation
 st.sidebar.write("### Navigation")
 col1, col2 = st.sidebar.columns(2)
 
@@ -46,6 +55,7 @@ if col1.button("Task Manager"):
 if col2.button("Analytics"):
     st.session_state.menu = "Analytics"
 
+# Display content based on the selected menu
 if st.session_state.menu == "Task Manager":
     tasks = get_tasks()
     display_tasks(tasks)
@@ -53,5 +63,6 @@ elif st.session_state.menu == "Analytics":
     tasks = get_tasks()
     display_analytics(tasks)
 
+# Render additional sidebar components
 st.sidebar.markdown("---")
 render_sidebar()
