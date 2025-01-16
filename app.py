@@ -22,6 +22,10 @@ gradients = {
     "Dark Mode": "linear-gradient(to right, #6441a5, #2a0845)"
 }
 
+# Add a switch for dark/light mode in the sidebar
+st.sidebar.write("### Appearance")
+is_dark_mode = st.sidebar.toggle("Dark Mode", value=False)
+
 # Set the selected gradient based on the switch state
 selected_gradient = gradients["Dark Mode"] if is_dark_mode else gradients["Light Mode"]
 
@@ -62,6 +66,3 @@ elif st.session_state.menu == "Analytics":
 # Render additional sidebar components
 st.sidebar.markdown("---")
 render_sidebar()
-# Add a switch for dark/light mode in the sidebar
-st.sidebar.write("### Appearance")
-is_dark_mode = st.sidebar.toggle("Dark Mode", value=False)
