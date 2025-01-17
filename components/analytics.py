@@ -80,7 +80,7 @@ def display_analytics(tasks):
         title="Task Distribution by Status Over Time",
     )
     status_chart = apply_transparent_layout(status_chart)
-    status_chart.update_xaxes(type="date", tickformat="%b %d, %Y")
+    status_chart.update_layout(xaxis=dict(type="category"))
 
     col1, col2 = st.columns(2)
     with col1:
