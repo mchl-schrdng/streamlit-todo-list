@@ -54,7 +54,7 @@ def display_analytics(tasks):
         title="Tasks Created Over Time",
     )
     time_series_chart = apply_transparent_layout(time_series_chart)
-    time_series_chart.update_xaxes(xaxis=dict(type="category")
+    time_series_chart.update_xaxes(tickformat="%b %d, %Y")
 
     combined_x = list(urgency_dates) + list(importance_dates)
     combined_y = list(urgency_values) + list(importance_values)
