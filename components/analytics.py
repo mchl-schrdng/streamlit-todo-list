@@ -23,22 +23,27 @@ def display_analytics(tasks):
         importance_trends[created_date].append(task["importance"])
         status_over_time[created_date][task["status"]] += 1
 
+    # Calculate average urgency and importance per day
     urgency_avg = {date: sum(values) / len(values) for date, values in urgency_trends.items()}
     importance_avg = {date: sum(values) / len(values) for date, values in importance_trends.items()}
 
+    # Sort the data so that we can plot in ascending date order
     sorted_time_series = sorted(time_series_data.items())
     sorted_urgency = sorted(urgency_avg.items())
     sorted_importance = sorted(importance_avg.items())
 
+    # Build a list for status-over-time data
     status_data = []
     for date, statuses in status_over_time.items():
         for s, count in statuses.items():
             status_data.append({"Date": date, "Status": s, "Count": count})
 
+    # Unpack the dictionaries/lists into x/y series for the line charts
     dates, task_counts = zip(*sorted_time_series) if sorted_time_series else ([], [])
     urgency_dates, urgency_values = zip(*sorted_urgency) if sorted_urgency else ([], [])
     importance_dates, importance_values = zip(*sorted_importance) if sorted_importance else ([], [])
 
+    # PIE CHART: Overall task distribution by status
     pie_chart = px.pie(
         names=list(task_status_counts.keys()),
         values=list(task_status_counts.values()),
@@ -47,6 +52,7 @@ def display_analytics(tasks):
     )
     pie_chart = apply_transparent_layout(pie_chart)
 
+    # LINE CHART: Tasks created over time
     time_series_chart = px.line(
         x=dates,
         y=task_counts,
@@ -56,9 +62,10 @@ def display_analytics(tasks):
     time_series_chart = apply_transparent_layout(time_series_chart)
     time_series_chart.update_xaxes(type="date", tickformat="%b %d, %Y")
 
+    # LINE CHART: Urgency and Importance Trends
     combined_x = list(urgency_dates) + list(importance_dates)
     combined_y = list(urgency_values) + list(importance_values)
-    combined_color = (["Urgency"] * len(urgency_dates) + ["Importance"] * len(importance_dates))
+    combined_color = ["Urgency"] * len(urgency_dates) + ["Importance"] * len(importance_dates)
 
     trend_chart = px.line(
         x=combined_x,
@@ -68,8 +75,9 @@ def display_analytics(tasks):
         title="Urgency and Importance Trends Over Time",
     )
     trend_chart = apply_transparent_layout(trend_chart)
-    trend_chart.update_xaxes(tickformat="%b %d, %Y")
+    trend_chart.update_xaxes(type="date", tickformat="%b %d, %Y")
 
+    # BAR CHART: Task distribution by status over time
     status_chart = px.bar(
         status_data,
         x="Date",
@@ -82,6 +90,7 @@ def display_analytics(tasks):
     status_chart = apply_transparent_layout(status_chart)
     status_chart.update_xaxes(type="date", tickformat="%b %d, %Y")
 
+    # Lay out the charts in two columns
     col1, col2 = st.columns(2)
     with col1:
         st.plotly_chart(pie_chart, use_container_width=True)
