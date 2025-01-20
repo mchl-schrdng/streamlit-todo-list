@@ -8,16 +8,25 @@ on:
 jobs:
   commit:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Grants write permission to the GITHUB_TOKEN
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Configure Git
+      - name: Create an Empty File
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          # Create a temporary empty file to ensure there's something to commit
+          echo "" > .tmp_empty_commit
 
-      - name: Create Empty Commit
+      - name: Commit Changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: daily empty commit"
+          file_pattern: ".tmp_empty_commit"
+
+      - name: Cleanup
         run: |
-          git commit --allow-empty -m "chore: daily empty commit"
-          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/mchl-schrdng/streamlit-todo-list.git
+          # Remove the temporary file after committing
+          rm .tmp_empty_commit
