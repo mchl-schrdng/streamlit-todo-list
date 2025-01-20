@@ -20,4 +20,4 @@ jobs:
       - name: Create Empty Commit
         run: |
           git commit --allow-empty -m "chore: daily empty commit"
-          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/your-username/your-repo.git
+          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/mchl-schrdng/streamlit-todo-list.git
